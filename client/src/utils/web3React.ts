@@ -6,7 +6,7 @@ export enum ConnectorNames {
 }
 
 const POLLING_INTERVAL = 12000;
-const rpcUrl = "http://127.0.0.1:7545";
+export const rpcUrl = "http://127.0.0.1:7545";
 const chainId = parseInt("1337", 10);
 
 export const injected = new InjectedConnector({ supportedChainIds: [chainId] });
