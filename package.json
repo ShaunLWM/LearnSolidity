@@ -7,6 +7,7 @@
 	"devDependencies": {
 		"@nomiclabs/hardhat-ethers": "^2.0.0",
 		"@nomiclabs/hardhat-waffle": "^2.0.0",
+		"@openzeppelin/hardhat-upgrades": "^1.9.0",
 		"@types/chai": "^4.2.21",
 		"@types/mocha": "^8.2.3",
 		"@types/node": "^16.3.0",
@@ -20,6 +21,10 @@
 	"scripts": {
 		"network": "hardhat node",
 		"compile": "hardhat compile",
-		"test": "hardhat test"
+		"test": "hardhat test",
+		"deploy": "hardhat run --network ganache scripts/Counter.ts"
+	},
+	"dependencies": {
+		"@openzeppelin/contracts": "^4.2.0"
 	}
 }
