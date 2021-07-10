@@ -1,5 +1,5 @@
 import { Button, NumberInput } from "@mantine/core";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import React, { useState } from "react";
 import { useCounterContract } from "../hooks/useContract";
 
@@ -19,8 +19,12 @@ export default function Counter() {
 	const setUpdateValue = async () => {
 		setDisabled(true);
 		await contract.add(input);
-		getCounterValue();
-		setDisabled(false);
+		contract.on("ValueChanged", (address: string, value: BigNumber) => {
+			console.log(`${address} added ${ethers.BigNumber.from(value).toNumber()} to Counter`);
+			getCounterValue();
+			setValue(0);
+			setDisabled(false);
+		});
 	};
 
 	return (
