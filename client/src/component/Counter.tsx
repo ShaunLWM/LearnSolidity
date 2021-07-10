@@ -1,9 +1,11 @@
 import { Button, NumberInput } from "@mantine/core";
+import { useWeb3React } from "@web3-react/core";
 import { BigNumber, ethers } from "ethers";
 import React, { useState } from "react";
 import { useCounterContract } from "../hooks/useContract";
 
 export default function Counter() {
+	const { account } = useWeb3React();
 	const contract = useCounterContract();
 
 	const [value, setValue] = useState(0);
@@ -20,6 +22,7 @@ export default function Counter() {
 		setDisabled(true);
 		await contract.add(input);
 		contract.on("ValueChanged", (address: string, value: BigNumber) => {
+			if (address !== account) return;
 			console.log(`${address} added ${ethers.BigNumber.from(value).toNumber()} to Counter`);
 			getCounterValue();
 			setValue(0);
