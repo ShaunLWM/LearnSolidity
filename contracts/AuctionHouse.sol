@@ -57,7 +57,7 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
     }
 
     function addBid(uint256 auctionId, uint256 price) external {
-        require(auctions[auctionId].timeStart == 0, "Auction does not exist");
+        require(auctions[auctionId].timeStart > 0, "Auction does not exist");
         require(
             block.timestamp >= auctions[auctionId].timeStart,
             "Auction has not started"
