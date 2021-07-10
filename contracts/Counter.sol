@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 
 contract Counter is Ownable, ReentrancyGuard {
-    uint256 counter;
+    uint256 public counter;
 
     constructor(uint value) {
         counter = value;
