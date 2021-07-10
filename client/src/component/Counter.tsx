@@ -1,21 +1,43 @@
-import { Button } from "@mantine/core";
+import { Button, NumberInput } from "@mantine/core";
 import { ethers } from "ethers";
 import React, { useState } from "react";
-import { getCounterContract } from "../utils/ContractHelper";
+import { useCounterContract } from "../hooks/useContract";
 
 export default function Counter() {
-	const [value, setValue] = useState("");
+	const contract = useCounterContract();
+
+	const [value, setValue] = useState(0);
+	const [disabled, setDisabled] = useState(true);
+	const [input, setInput] = useState(0);
 
 	const getCounterValue = async () => {
-		const counterContract = getCounterContract();
-		const value = await counterContract.counter();
-		setValue(ethers.BigNumber.from(value).toString());
+		const value = await contract.counter();
+		setValue(ethers.BigNumber.from(value).toNumber());
+		setDisabled(false);
+	};
+
+	const setUpdateValue = async () => {
+		setDisabled(true);
+		await contract.add(input);
+		getCounterValue();
+		setDisabled(false);
 	};
 
 	return (
 		<div>
 			<Button onClick={getCounterValue}>Get Counter</Button>
 			<span>CurrentValue: {value ?? "Error"}</span>
+			<div>
+				<NumberInput
+					defaultValue={input}
+					onChange={setInput}
+					placeholder="Value"
+					label="Value"
+					required
+					disabled={disabled}
+				/>
+				<Button onClick={setUpdateValue}>Add value</Button>
+			</div>
 		</div>
 	);
 }
