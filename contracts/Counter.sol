@@ -9,12 +9,15 @@ import "hardhat/console.sol";
 contract Counter is Ownable, ReentrancyGuard {
     uint256 public counter;
 
-    constructor(uint value) {
+    event ValueChanged(address indexed _from, uint256 _value);
+
+    constructor(uint256 value) {
         counter = value;
         console.log("Counter initial value set to ", value);
     }
 
     function add(uint256 value) public nonReentrant {
         counter += value;
+        emit ValueChanged(msg.sender, value);
     }
 }

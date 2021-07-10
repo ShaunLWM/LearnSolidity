@@ -12,7 +12,7 @@ const getContract = (abi: any, address: string, signer?: ethers.Signer | ethers.
 };
 
 export const getCounterContract = (signer?: ethers.Signer | ethers.providers.Provider) => {
-	return getContract(CounterAbi.abi, "0xdDC0685F8f0EAA2885f9F304ee3e378980c97a57", signer);
+	return getContract(CounterAbi.abi, "0x8a1A1c315E4E354eB380bEa3e89fc5293397d701", signer);
 };
 
 export const getMultiCallContract = (signer?: ethers.Signer | ethers.providers.Provider) => {
