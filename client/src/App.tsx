@@ -2,6 +2,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Button } from "@mantine/core";
 import { useWeb3React } from "@web3-react/core";
 import React, { useEffect, useState } from "react";
+import Counter from "./component/Counter";
 import { Account } from "./component/Home/Account";
 import { Balance } from "./component/Home/Balance";
 import { ChainId } from "./component/Home/ChainId";
@@ -44,6 +45,7 @@ function App() {
 			<Balance />
 			<ChainId />
 			{error && <h4 style={{ marginTop: "1rem", marginBottom: "0" }}>{getErrorMessage(error)}</h4>}
+			<Counter />
 		</div>
 	);
 }
