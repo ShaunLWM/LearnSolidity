@@ -29,6 +29,8 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
 
     uint256 public currentAuctionId;
     mapping(uint256 => Auction) public auctions;
+    uint256 public constant MIN_LENGTH_AUCTION = 1 hours; // 4 hours
+    uint256 public constant MAX_LENGTH_AUCTION = 7 days; // 4 days
 
     constructor() {}
 
@@ -39,6 +41,11 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         uint256 basePrice
     ) external nonReentrant {
         require(timeStart < timeEnd, "timeEnd must be more than timeStart");
+        require(
+            ((timeEnd - block.timestamp) > MIN_LENGTH_AUCTION) &&
+                ((timeEnd - block.timestamp) < MAX_LENGTH_AUCTION),
+            "Aunction length outside of range"
+        );
         currentAuctionId += 1;
         Auction storage a = auctions[currentAuctionId];
         a.auctionName = auctionName;
