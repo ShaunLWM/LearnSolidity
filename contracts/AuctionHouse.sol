@@ -15,6 +15,7 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         uint256 timeEnd;
         address createdBy;
         uint256 bidCount;
+        uint256 basePrice;
         Bid currentHighestBid;
         mapping(uint256 => Bid) bids;
     }
@@ -38,8 +39,9 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
     function newAuction(
         string memory auctionName,
         uint256 timeStart,
-        uint256 timeEnd
-    ) external payable nonReentrant {
+        uint256 timeEnd,
+        uint256 amount
+    ) external nonReentrant {
         require(timeStart < timeEnd, "timeEnd must be more than timeStart");
         require(
             ((timeEnd - block.timestamp) > MIN_LENGTH_AUCTION) &&
@@ -47,7 +49,7 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
             "Aunction length outside of range"
         );
         require(
-            msg.value >= minAuctionStartBid,
+            amount >= minAuctionStartBid,
             "Auction must be more than minAuctionStartBid"
         );
 
@@ -59,11 +61,7 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         a.timeEnd = timeEnd;
         a.createdBy = msg.sender;
         a.bidCount = 0;
-        a.currentHighestBid = Bid({
-            bidTime: 0,
-            price: msg.value,
-            user: msg.sender
-        });
+        a.basePrice = amount;
 
         emit AuctionCreated(currentAuctionId);
     }
@@ -89,15 +87,17 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         );
 
         require(
-            msg.value > currentAuction.currentHighestBid.price,
+            msg.value > currentAuction.basePrice &&
+                msg.value > currentAuction.currentHighestBid.price,
             "Your bid price must be higher than current highest bid price"
         );
 
-        pendingWithdraws[
-            currentAuction.currentHighestBid.user
-        ] += currentAuction.currentHighestBid.price;
+        if (currentAuction.bidCount > 0) {
+            pendingWithdraws[
+                currentAuction.currentHighestBid.user
+            ] += currentAuction.currentHighestBid.price;
+        }
 
-        uint256 bidCount = currentAuction.bidCount;
         Bid memory newBit = Bid({
             bidTime: block.timestamp,
             price: msg.value,
@@ -107,7 +107,7 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         currentAuction.bidCount += 1;
         currentAuction.currentHighestBid = newBit;
 
-        emit NewBid(auctionId, msg.sender, bidCount);
+        emit NewBid(auctionId, msg.sender, currentAuction.bidCount);
     }
 
     function withdraw() external {
