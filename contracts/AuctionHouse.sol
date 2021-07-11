@@ -104,7 +104,6 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
             user: msg.sender
         });
 
-        currentAuction.bids[bidCount + 1] = newBit;
         currentAuction.bidCount += 1;
         currentAuction.currentHighestBid = newBit;
 
