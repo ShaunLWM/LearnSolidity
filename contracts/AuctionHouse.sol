@@ -4,8 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "hardhat/console.sol";
-
 contract AuctionHouse is Ownable, ReentrancyGuard {
     event AuctionCreated(uint256 id);
     event NewBid(uint256 auctionId, address indexed user, uint256 bidId);
@@ -65,31 +63,34 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
 
     function addBid(uint256 auctionId, uint256 price) external {
         require(auctions[auctionId].timeStart > 0, "Auction does not exist");
+
+        Auction storage currentAuction = auctions[auctionId];
         require(
-            block.timestamp >= auctions[auctionId].timeStart,
+            block.timestamp >= currentAuction.timeStart,
             "Auction has not started"
         );
 
         require(
-            block.timestamp < auctions[auctionId].timeEnd,
+            block.timestamp < currentAuction.timeEnd,
             "Auction has already ended"
         );
 
         require(
-            auctions[auctionId].currentHighestBid.price < price,
+            price > currentAuction.currentHighestBid.price,
             "Your bid price must be higher than current highest bid price."
         );
 
-        uint256 bidCount = auctions[auctionId].bidCount;
+        uint256 bidCount = currentAuction.bidCount;
         Bid memory newBit = Bid({
             bidTime: block.timestamp,
             price: price,
             user: msg.sender
         });
 
-        auctions[auctionId].bids[bidCount + 1] = newBit;
-        auctions[auctionId].bidCount += 1;
-        auctions[auctionId].currentHighestBid = newBit;
+        currentAuction.bids[bidCount + 1] = newBit;
+        currentAuction.bidCount += 1;
+        currentAuction.currentHighestBid = newBit;
+
         emit NewBid(auctionId, msg.sender, bidCount);
     }
 }
