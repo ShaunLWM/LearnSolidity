@@ -65,6 +65,12 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         require(auctions[auctionId].timeStart > 0, "Auction does not exist");
 
         Auction storage currentAuction = auctions[auctionId];
+
+        require(
+            currentAuction.createdBy != msg.sender,
+            "Creator cannot bid own auction"
+        );
+        
         require(
             block.timestamp >= currentAuction.timeStart,
             "Auction has not started"
@@ -77,7 +83,7 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
 
         require(
             price > currentAuction.currentHighestBid.price,
-            "Your bid price must be higher than current highest bid price."
+            "Your bid price must be higher than current highest bid price"
         );
 
         uint256 bidCount = currentAuction.bidCount;
