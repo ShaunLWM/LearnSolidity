@@ -110,4 +110,14 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
 
         emit NewBid(auctionId, msg.sender, bidCount);
     }
+
+    function withdraw() external {
+        require(pendingWithdraws[msg.sender] > 0, "No withdraws");
+        uint256 amount = pendingWithdraws[msg.sender];
+        pendingWithdraws[msg.sender] = 0;
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed.");
+        pendingWithdraws[msg.sender] = amount;
+    }
 }
