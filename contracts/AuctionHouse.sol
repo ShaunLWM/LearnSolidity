@@ -31,6 +31,8 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
     uint256 public constant MAX_LENGTH_AUCTION = 7 days; // 7 days
     uint256 public minAuctionStartBid = 1 gwei;
 
+    mapping(address => uint256) pendingWithdraws;
+
     constructor() {}
 
     function newAuction(
@@ -90,6 +92,10 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
             msg.value > currentAuction.currentHighestBid.price,
             "Your bid price must be higher than current highest bid price"
         );
+
+        pendingWithdraws[
+            currentAuction.currentHighestBid.user
+        ] += currentAuction.currentHighestBid.price;
 
         uint256 bidCount = currentAuction.bidCount;
         Bid memory newBit = Bid({
