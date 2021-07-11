@@ -27,17 +27,16 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
 
     uint256 public currentAuctionId;
     mapping(uint256 => Auction) public auctions;
-    uint256 public constant MIN_LENGTH_AUCTION = 1 hours; // 4 hours
-    uint256 public constant MAX_LENGTH_AUCTION = 7 days; // 4 days
+    uint256 public constant MIN_LENGTH_AUCTION = 1 hours; // 1 hour
+    uint256 public constant MAX_LENGTH_AUCTION = 7 days; // 7 days
 
     constructor() {}
 
     function newAuction(
         string memory auctionName,
         uint256 timeStart,
-        uint256 timeEnd,
-        uint256 basePrice
-    ) external nonReentrant {
+        uint256 timeEnd
+    ) external payable nonReentrant {
         require(timeStart < timeEnd, "timeEnd must be more than timeStart");
         require(
             ((timeEnd - block.timestamp) > MIN_LENGTH_AUCTION) &&
@@ -54,14 +53,14 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         a.bidCount = 0;
         a.currentHighestBid = Bid({
             bidTime: 0,
-            price: basePrice,
+            price: msg.value,
             user: msg.sender
         });
 
         emit AuctionCreated(currentAuctionId);
     }
 
-    function addBid(uint256 auctionId, uint256 price) external {
+    function addBid(uint256 auctionId) external payable {
         require(auctions[auctionId].timeStart > 0, "Auction does not exist");
 
         Auction storage currentAuction = auctions[auctionId];
@@ -70,7 +69,7 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
             currentAuction.createdBy != msg.sender,
             "Creator cannot bid own auction"
         );
-        
+
         require(
             block.timestamp >= currentAuction.timeStart,
             "Auction has not started"
@@ -82,14 +81,14 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         );
 
         require(
-            price > currentAuction.currentHighestBid.price,
+            msg.value > currentAuction.currentHighestBid.price,
             "Your bid price must be higher than current highest bid price"
         );
 
         uint256 bidCount = currentAuction.bidCount;
         Bid memory newBit = Bid({
             bidTime: block.timestamp,
-            price: price,
+            price: msg.value,
             user: msg.sender
         });
 
