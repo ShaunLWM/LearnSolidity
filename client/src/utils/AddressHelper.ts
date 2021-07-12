@@ -20,6 +20,5 @@ export const getAuctionAddress = () => {
 };
 
 export const getMulticallAddress = () => {
-	console.log(Addresses)
 	return getAddress(Addresses.multicall);
 };
