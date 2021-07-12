@@ -1,4 +1,4 @@
-import address from "../config/constants/contracts";
+import Addresses from "../config/constants/contracts";
 
 export interface Address {
 	97?: string;
@@ -12,13 +12,14 @@ export const getAddress = (address: Address): string => {
 };
 
 export const getCounterAddress = () => {
-	return getAddress(address.counter);
+	return getAddress(Addresses.counter);
 };
 
 export const getAuctionAddress = () => {
-	return getAddress(address.auctions);
+	return getAddress(Addresses.auction);
 };
 
 export const getMulticallAddress = () => {
-	return getAddress(address.multicall);
+	console.log(Addresses)
+	return getAddress(Addresses.multicall);
 };
