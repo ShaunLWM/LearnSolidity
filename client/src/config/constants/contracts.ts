@@ -14,7 +14,7 @@ const contracts: AddressKey = {
 		1337: "0x8a1A1c315E4E354eB380bEa3e89fc5293397d701",
 	},
 	auction: {
-		1337: "0x2B322d5F1D45c8e19378980f6CaCd04085c5C4b5",
+		1337: "0x38836793314a21C29dcde83A52A2bF9e7d392C94",
 	},
 } as const;
 

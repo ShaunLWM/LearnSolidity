@@ -17,7 +17,6 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
         uint256 bidCount;
         uint256 basePrice;
         Bid currentHighestBid;
-        mapping(uint256 => Bid) bids;
     }
 
     struct Bid {
