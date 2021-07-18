@@ -22,9 +22,11 @@
 		"network": "hardhat node",
 		"compile": "hardhat compile",
 		"test": "hardhat test",
+		"test:watch": "hardhat watch test",
 		"deploy": "hardhat run --network ganache scripts/Counter.ts"
 	},
 	"dependencies": {
-		"@openzeppelin/contracts": "^4.2.0"
+		"@openzeppelin/contracts": "^4.2.0",
+		"hardhat-watcher": "^2.1.1"
 	}
 }
