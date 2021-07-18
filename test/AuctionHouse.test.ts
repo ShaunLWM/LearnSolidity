@@ -30,6 +30,22 @@ describe("AuctionHouse contract", () => {
 			expect(await auctionHouse.currentAuctionId()).to.equal(0);
 		});
 
+		it("should fail when timeEnd is less than MIN_LENGTH_AUCTION", async () => {
+			const now = Math.round(new Date().getTime() / 1000);
+			await expect(auctionHouse.newAuction("Action #1", now, now + 10, WEI)).to.be.revertedWith(
+				"Aunction length outside of range"
+			);
+			expect(await auctionHouse.currentAuctionId()).to.equal(0);
+		});
+
+		it("should fail when timeEnd is more than than MAX_LENGTH_AUCTION", async () => {
+			const now = Math.round(new Date().getTime() / 1000);
+			await expect(auctionHouse.newAuction("Action #1", now, now + 604800 + 1, WEI)).to.be.revertedWith(
+				"Aunction length outside of range"
+			);
+			expect(await auctionHouse.currentAuctionId()).to.equal(0);
+		});
+
 		it("successfully deploy a new auction", async () => {
 			const now = Math.round(new Date().getTime() / 1000);
 			await auctionHouse.newAuction("Action #1", now, now + 86400, WEI);
