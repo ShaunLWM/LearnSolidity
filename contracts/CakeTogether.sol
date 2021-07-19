@@ -24,7 +24,9 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         uint256 startTime;
         uint256 endTime;
         uint256 amountCollected;
-        uint256 finalNumber;
+        uint256 startTicketId;
+        uint256 endTicketId;
+        uint256 tickerNumber;
     }
 
     mapping(uint256 => Round) private _rounds;
@@ -45,7 +47,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
     constructor(address _token, address _poolAddress) {
         poolAddress = _poolAddress;
         token = IERC20(_token);
-				token.approve(_poolAddress, type(uint).max);
+        token.approve(_poolAddress, type(uint256).max);
     }
 
     function changePoolAddress(address _poolAddress) external onlyOwner {
@@ -54,6 +56,14 @@ contract CakeTogether is Ownable, ReentrancyGuard {
 
     function createRound() internal onlyOwner returns (uint256) {
         currentRoundId += 1;
+        Round storage r = _rounds[currentRoundId];
+        r.status = Status.Open;
+        r.startTime = block.timestamp;
+        r.endTime = block.timestamp + 7 days;
+        if (currentRoundId > 1) {
+            // if round is 2 and onwards, we set current startTicketId to previous end + 1;
+            r.startTicketId = _rounds[currentRoundId - 1].endTicketId + 1;
+        }
         return currentRoundId;
     }
 
