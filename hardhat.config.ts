@@ -30,6 +30,7 @@ module.exports = {
 		hardhat: {
 			accounts: {
 				accountsBalance: "100000000000000000000000",
+				count: 5,
 			},
 			forking: {
 				url: "https://bsc.getblock.io/mainnet/?api_key=65f1d98d-ac5a-45f8-be38-00ca29126f92",
