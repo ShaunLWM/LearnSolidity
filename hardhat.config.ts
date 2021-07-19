@@ -1,7 +1,9 @@
-import { task } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-watcher";
+import "@typechain/hardhat";
+import "@nomiclabs/hardhat-ethers";
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 	const accounts = await hre.ethers.getSigners();
@@ -11,15 +13,11 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 	}
 });
 
-task("tests", "dat", async (taskArgs, hre) => {
-	console.log("tests");
-});
-
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-	defaultNetwork: "ganache",
+	defaultNetwork: "hardhat",
 	networks: {
 		ganache: {
 			url: "http://127.0.0.1:7545",
@@ -27,6 +25,15 @@ module.exports = {
 				"a2d64c7b33e066eb6d69fdf3bdc53a19763cdc7ed0e26e42d67be0cfd8a00c91",
 				"8030fd93ab8552037dfc9618c7fc8df53b5dd02f8f7d36015d138f9209110be0",
 			],
+		},
+		hardhat: {
+			accounts: {
+				accountsBalance: "9999",
+			},
+			forking: {
+				url: "https://bsc.getblock.io/mainnet/?api_key=65f1d98d-ac5a-45f8-be38-00ca29126f92",
+				blockNumber: 9286193,
+			},
 		},
 	},
 	solidity: {
@@ -45,4 +52,4 @@ module.exports = {
 			verbose: true,
 		},
 	},
-};
+} as HardhatUserConfig;

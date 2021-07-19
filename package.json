@@ -27,6 +27,11 @@
 	},
 	"dependencies": {
 		"@openzeppelin/contracts": "^4.2.0",
-		"hardhat-watcher": "^2.1.1"
+		"@typechain/ethers-v5": "^7.0.1",
+		"@typechain/hardhat": "^2.1.2",
+		"hardhat-watcher": "^2.1.1",
+		"sortition-sum-tree-factory": "^0.1.0",
+		"ts-generator": "^0.1.1",
+		"typechain": "^5.1.1"
 	}
 }
