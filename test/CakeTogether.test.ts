@@ -3,6 +3,8 @@ import { assert, expect } from "chai";
 import { ethers } from "hardhat";
 import hre from "hardhat";
 
+import { CakeTogether } from "../typechain/CakeTogether";
+
 const CAKE_TOKEN = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
 const CAKE_SYMBOL = "CAKE";
 const CAKE_MASTERCHEF = "0x73feaa1ee314f8c655e354234017be2193c9e24e";
@@ -14,15 +16,11 @@ describe("Hardhat Runtime Environment", function () {
 });
 
 describe("CakeTogether contract", () => {
-	let cakeTogether: Contract;
+	let cakeTogether: CakeTogether;
 
 	beforeEach(async () => {
 		const CakeTogetherContract = await ethers.getContractFactory("CakeTogether");
-		cakeTogether = await CakeTogetherContract.deploy(CAKE_TOKEN, CAKE_MASTERCHEF);
-		await hre.network.provider.request({
-			method: "hardhat_impersonateAccount",
-			params: ["0x9239dF3E9996c776D539EB9f01A8aE8E7957b3c3"],
-		});
+		cakeTogether = (await CakeTogetherContract.deploy(CAKE_TOKEN, CAKE_MASTERCHEF)) as CakeTogether;
 	});
 
 	it("Deployment should assign the deployer as owner", async () => {
