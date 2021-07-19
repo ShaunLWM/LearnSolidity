@@ -1,9 +1,10 @@
-import { HardhatUserConfig, task } from "hardhat/config";
+import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@openzeppelin/hardhat-upgrades";
-import "hardhat-watcher";
 import "@typechain/hardhat";
-import "@nomiclabs/hardhat-ethers";
+import "hardhat-gas-reporter";
+import "hardhat-watcher";
+import { HardhatUserConfig, task } from "hardhat/config";
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 	const accounts = await hre.ethers.getSigners();
