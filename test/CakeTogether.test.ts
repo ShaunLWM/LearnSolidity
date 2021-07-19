@@ -42,4 +42,15 @@ describe("CakeTogether contract", () => {
 		const token = await cakeTogether.token();
 		expect(token).to.equal("0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82");
 	});
+
+	it("should allow owner to createRound", async () => {
+		await cakeTogether.createRound();
+		expect(await cakeTogether.currentRoundId()).to.be.gte(0);
+	});
+
+	it("should not allow non owner to createRound", async () => {
+		const [_, impersonator] = await ethers.getSigners();
+		await expect(cakeTogether.connect(impersonator).createRound()).to.be.reverted;
+		expect(await cakeTogether.currentRoundId()).to.be.eq(0);
+	});
 });
