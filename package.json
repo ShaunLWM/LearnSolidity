@@ -19,11 +19,11 @@
 		"typescript": "^4.3.5"
 	},
 	"scripts": {
-		"network": "hardhat node",
+		"network": "hardhat node --network hardhat",
 		"compile": "hardhat compile",
 		"test": "hardhat test",
 		"test:watch": "hardhat watch test",
-		"deploy": "hardhat run --network ganache scripts/Counter.ts"
+		"deploy": "hardhat run --network hardhat scripts/Counter.ts"
 	},
 	"dependencies": {
 		"@openzeppelin/contracts": "^4.2.0",
