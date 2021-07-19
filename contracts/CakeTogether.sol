@@ -54,7 +54,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         poolAddress = _poolAddress;
     }
 
-    function createRound() internal onlyOwner returns (uint256) {
+    function createRound() external onlyOwner returns (uint256) {
         currentRoundId += 1;
         Round storage r = _rounds[currentRoundId];
         r.status = Status.Open;
