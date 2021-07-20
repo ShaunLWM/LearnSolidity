@@ -1,4 +1,5 @@
 import hre, { ethers } from "hardhat";
+import { saveContractAddress } from "./ScriptsUtils";
 
 const CAKE_TOKEN = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
 const CAKE_SYMBOL = "CAKE";
@@ -11,12 +12,14 @@ async function main() {
 	const xCake = await xCakeToken.deploy(0);
 	await xCake.deployed();
 	console.log("xCake token deployed to:", xCake.address);
+	saveContractAddress("xCake", xCake.address);
 	// start with 0 tickets. tickers are only minted when user deposit their Cake to get Tickets, burned when used/round over
 
 	const CakeTogether = await hre.ethers.getContractFactory("CakeTogether");
 	const cakeTogether = await CakeTogether.deploy(CAKE_TOKEN, CAKE_MASTERCHEF);
 	await cakeTogether.deployed();
 	console.log("CakeTogether deployed to:", cakeTogether.address);
+	saveContractAddress("CakeTogether", cakeTogether.address);
 }
 
 main()

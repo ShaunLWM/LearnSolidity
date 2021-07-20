@@ -1,4 +1,5 @@
 import hre from "hardhat";
+import { saveContractAddress } from "./ScriptsUtils";
 
 async function main() {
 	await hre.run("compile");
@@ -7,6 +8,7 @@ async function main() {
 	const auctionHouse = await AuctionHouse.deploy();
 	await auctionHouse.deployed();
 	console.log("AuctionHouse deployed to:", auctionHouse.address);
+	saveContractAddress("AuctionHouse", auctionHouse.address);
 }
 
 main()

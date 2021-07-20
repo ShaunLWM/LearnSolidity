@@ -1,4 +1,5 @@
 import hre from "hardhat";
+import { saveContractAddress } from "./ScriptsUtils";
 
 async function main() {
 	await hre.run("compile");
@@ -7,6 +8,7 @@ async function main() {
 	const counter = await Counter.deploy(10);
 	await counter.deployed();
 	console.log("Counter deployed to:", counter.address);
+	saveContractAddress("Counter", counter.address);
 }
 
 main()
