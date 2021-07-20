@@ -5,8 +5,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "./SortitionSumTreeFactory.sol";
+
+// import "hardhat/console.sol";
+
 contract CakeTogether is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
+
+    using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees;
+    SortitionSumTreeFactory.SortitionSumTrees internal _sumTreeFactory;
 
     uint256 public currentRoundId;
     address public poolAddress;
@@ -29,6 +36,8 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         uint256 tickerNumber;
     }
 
+    bytes32 private constant _TREE_KEY = keccak256("CakeTogether/Ticket");
+    uint256 private constant _MAX_TREE_LEAVES = 5;
     mapping(uint256 => Round) private _rounds;
 
     // keep track of user's contribution per round
@@ -48,6 +57,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         poolAddress = _poolAddress;
         token = IERC20(_token);
         token.approve(_poolAddress, type(uint256).max);
+        _sumTreeFactory.createTree(_TREE_KEY, _MAX_TREE_LEAVES);
     }
 
     function changePoolAddress(address _poolAddress) external onlyOwner {
