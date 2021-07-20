@@ -63,6 +63,8 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         if (currentRoundId > 1) {
             // if round is 2 and onwards, we set current startTicketId to previous end + 1;
             r.startTicketId = _rounds[currentRoundId - 1].endTicketId + 1;
+        } else if (currentRoundId == 1) {
+            r.startTicketId = 1;
         }
         return currentRoundId;
     }
