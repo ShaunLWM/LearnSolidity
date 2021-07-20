@@ -36,12 +36,18 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         uint256 tickerNumber;
     }
 
+    struct TicketRange {
+        uint256 start;
+        uint256 end;
+    }
+
     bytes32 private constant _TREE_KEY = keccak256("CakeTogether/Ticket");
     uint256 private constant _MAX_TREE_LEAVES = 5;
+
     mapping(uint256 => Round) private _rounds;
 
     // keep track of user's contribution per round
-    mapping(address => mapping(uint256 => uint256))
+    mapping(address => mapping(uint256 => TicketRange[]))
         private _userContributionsPerRoundId;
 
     modifier nonContract() {
@@ -76,12 +82,13 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         } else if (currentRoundId == 1) {
             r.startTicketId = 1;
         }
+
+        // TODO: emit
         return currentRoundId;
     }
 
     function deposit(uint256 _roundId, uint256 _amount)
         external
-        payable
         nonContract
         nonReentrant
     {
@@ -89,11 +96,24 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         require(_amount > 0, "Deposit must be more than 0");
         require(_amount % 1 == 0, "Amount must be a whole number");
 
+        uint256 allowance = token.allowance(msg.sender, address(this));
+        require(allowance >= _amount, "Check the token allowance");
+
         token.safeTransferFrom(address(msg.sender), address(this), _amount);
+        TicketRange memory userTicketRange = TicketRange({
+            start: _rounds[_roundId].endTicketId + 1,
+            end: _rounds[_roundId].endTicketId + _amount
+        });
+
+        _userContributionsPerRoundId[msg.sender][_roundId].push(
+            userTicketRange
+        );
+
         _rounds[_roundId].amountCollected += _amount;
-        _userContributionsPerRoundId[msg.sender][_roundId] += _amount;
+        _rounds[_roundId].endTicketId = _rounds[_roundId].endTicketId + _amount;
 
         // TODO: deposit in Cake Pool
+        // TODO: give user xCake
         emit onDeposit(_roundId, msg.sender, _amount);
     }
 
