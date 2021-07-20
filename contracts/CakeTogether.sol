@@ -87,6 +87,10 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         emit onDeposit(_roundId, msg.sender, _amount);
     }
 
+    function getRound(uint256 _roundId) external view returns (Round memory) {
+        return _rounds[_roundId];
+    }
+
     function _isContract(address _addr) internal view returns (bool) {
         uint256 size;
         assembly {
