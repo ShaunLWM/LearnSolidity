@@ -129,3 +129,4 @@ node_modules
 cache
 artifacts
 typechain
+contracts.json
