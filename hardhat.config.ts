@@ -102,4 +102,7 @@ module.exports = {
 		// only: [],
 		// except: []
 	},
+	mocha: {
+    timeout: 1200000,
+  },
 } as HardhatUserConfig;
