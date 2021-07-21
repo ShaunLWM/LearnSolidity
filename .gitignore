@@ -130,3 +130,5 @@ cache
 artifacts
 typechain
 contracts.json
+abi
+deployments

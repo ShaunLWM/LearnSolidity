@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { AuctionHouse } from "../typechain/AuctionHouse";
 import { getBlockTimestamp } from "./TestUtils";
 
@@ -9,9 +9,8 @@ describe("AuctionHouse contract", () => {
 	let auctionHouse: AuctionHouse;
 
 	before(async () => {
-		const AuctionHouseContract = await ethers.getContractFactory("AuctionHouse");
-		auctionHouse = (await AuctionHouseContract.deploy()) as AuctionHouse;
-		await auctionHouse.deployed();
+		await deployments.fixture(["AuctionHouse"]);
+		auctionHouse = (await ethers.getContract("AuctionHouse")) as AuctionHouse;
 	});
 
 	it("Deployment should assign the deployer as owner", async () => {
