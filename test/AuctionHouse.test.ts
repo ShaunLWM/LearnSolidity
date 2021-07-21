@@ -1,15 +1,17 @@
-import { Contract } from "@ethersproject/contracts";
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { AuctionHouse } from "../typechain/AuctionHouse";
+import { getBlockTimestamp } from "./TestUtils";
 
 const MIN_GWEI = ethers.utils.parseUnits("1.0", "gwei");
 
 describe("AuctionHouse contract", () => {
-	let auctionHouse: Contract;
+	let auctionHouse: AuctionHouse;
 
-	beforeEach(async () => {
+	before(async () => {
 		const AuctionHouseContract = await ethers.getContractFactory("AuctionHouse");
-		auctionHouse = await AuctionHouseContract.deploy();
+		auctionHouse = (await AuctionHouseContract.deploy()) as AuctionHouse;
+		await auctionHouse.deployed();
 	});
 
 	it("Deployment should assign the deployer as owner", async () => {
@@ -23,7 +25,7 @@ describe("AuctionHouse contract", () => {
 
 	describe("Creating Auction", () => {
 		it("should fail when timeEnd < timeStart", async () => {
-			const now = Math.round(new Date().getTime() / 1000);
+			const now = await getBlockTimestamp();
 			await expect(auctionHouse.newAuction("Action #1", now, now - 86400, MIN_GWEI)).to.be.revertedWith(
 				"timeEnd must be more than timeStart"
 			);
@@ -31,7 +33,7 @@ describe("AuctionHouse contract", () => {
 		});
 
 		it("should fail when timeEnd is less than MIN_LENGTH_AUCTION", async () => {
-			const now = Math.round(new Date().getTime() / 1000);
+			const now = await getBlockTimestamp();
 			await expect(auctionHouse.newAuction("Action #1", now, now + 10, MIN_GWEI)).to.be.revertedWith(
 				"Aunction length outside of range"
 			);
@@ -39,7 +41,7 @@ describe("AuctionHouse contract", () => {
 		});
 
 		it("should fail when timeEnd is more than than MAX_LENGTH_AUCTION", async () => {
-			const now = Math.round(new Date().getTime() / 1000);
+			const now = await getBlockTimestamp();
 			await expect(auctionHouse.newAuction("Action #1", now, now + 604800 + 1, MIN_GWEI)).to.be.revertedWith(
 				"Aunction length outside of range"
 			);
@@ -47,7 +49,7 @@ describe("AuctionHouse contract", () => {
 		});
 
 		it("should fail when amount is less than minAuctionStartBid ", async () => {
-			const now = Math.round(new Date().getTime() / 1000);
+			const now = await getBlockTimestamp();
 			await expect(auctionHouse.newAuction("Action #1", now, now + 86400, MIN_GWEI.sub(10))).to.be.revertedWith(
 				"Auction must be more than minAuctionStartBid"
 			);
@@ -55,7 +57,7 @@ describe("AuctionHouse contract", () => {
 		});
 
 		it("successfully deploy a new auction", async () => {
-			const now = Math.round(new Date().getTime() / 1000);
+			const now = await getBlockTimestamp();
 			await auctionHouse.newAuction("Action #1", now, now + 86400, MIN_GWEI);
 			expect(await auctionHouse.currentAuctionId()).to.equal(1);
 		});

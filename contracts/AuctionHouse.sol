@@ -43,8 +43,8 @@ contract AuctionHouse is Ownable, ReentrancyGuard {
     ) external nonReentrant {
         require(timeStart < timeEnd, "timeEnd must be more than timeStart");
         require(
-            ((timeEnd - block.timestamp) > MIN_LENGTH_AUCTION) &&
-                ((timeEnd - block.timestamp) < MAX_LENGTH_AUCTION),
+            ((timeEnd - timeStart) >= MIN_LENGTH_AUCTION) &&
+                ((timeEnd - timeStart) < MAX_LENGTH_AUCTION),
             "Aunction length outside of range"
         );
         require(
