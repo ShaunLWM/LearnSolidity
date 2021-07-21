@@ -1,8 +1,11 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { assert, expect } from "chai";
 import hre, { ethers } from "hardhat";
+import CakeTogetherAbi from "../artifacts/contracts/CakeTogether.sol/CakeTogether.json";
+import { getSavedContractAddress, saveContractAddress } from "../scripts/ScriptsUtils";
 import { CakeTogether } from "../typechain/CakeTogether";
 
+// https://github.com/pooltogether/multi-token-listener/blob/master/scripts/createTokenFaucets.ts
 
 const CAKE_TOKEN = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
 const CAKE_SYMBOL = "CAKE";
@@ -31,10 +34,19 @@ describe("CakeTogether contract", () => {
 	let owner: SignerWithAddress;
 
 	before(async () => {
-		const CakeTogetherContract = await ethers.getContractFactory("CakeTogether");
-		cakeTogether = (await CakeTogetherContract.deploy(CAKE_TOKEN, CAKE_MASTERCHEF)) as CakeTogether;
 		const signers = await ethers.getSigners();
 		owner = signers[0];
+		let CakeTogetherContract = await ethers.getContractFactory("CakeTogether");
+		const localAddress = getSavedContractAddress("CakeTogether");
+		if (localAddress) {
+			console.log(`Using old contract address ${localAddress}`);
+			cakeTogether = (await ethers.getContractAt(CakeTogetherAbi.abi, localAddress)) as CakeTogether;
+		} else {
+			cakeTogether = (await CakeTogetherContract.deploy(CAKE_TOKEN, CAKE_MASTERCHEF)) as CakeTogether;
+			await cakeTogether.deployed();
+			console.log("CakeTogether deployed to:", cakeTogether.address);
+			saveContractAddress("CakeTogether", cakeTogether.address);
+		}
 	});
 
 	beforeEach(async () => {
@@ -47,7 +59,7 @@ describe("CakeTogether contract", () => {
 		console.log(
 			`Impersonator Cake Balance: ${ethers.BigNumber.from(await cakeToken.balanceOf(IMPERSONATE_ACCOUNT)).toString()}`
 		);
-		const tx = await cakeToken.transfer(owner.address, ethers.BigNumber.from("1000"));
+		await cakeToken.transfer(owner.address, ethers.BigNumber.from("1000"));
 		await hre.network.provider.request({
 			method: "hardhat_stopImpersonatingAccount",
 			params: [IMPERSONATE_ACCOUNT],
