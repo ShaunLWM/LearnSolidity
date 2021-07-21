@@ -16,15 +16,15 @@ contract xCake is ERC20, Ownable {
         _;
     }
 
-    function mint(address to, uint256 amount) public onlyMinters {
+    function mint(address to, uint256 amount) external onlyMinters {
         _mint(to, amount);
     }
 
-    function addMinter(address _minter) public onlyMinters {
+    function addMinter(address _minter) external onlyMinters {
         minters[_minter] = true;
     }
 
-    function removeMinter(address _minter) public onlyMinters {
+    function removeMinter(address _minter) external onlyMinters {
         minters[_minter] = false;
     }
 
