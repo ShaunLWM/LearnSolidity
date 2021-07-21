@@ -1,7 +1,6 @@
 import hre, { ethers } from "hardhat";
 
 async function main() {
-	// https://github.com/austintgriffith/scaffold-eth/blob/mainnet-fork-session/packages/react-app/src/App.jsx#L126
 	const abi = [
 		"function balanceOf(address owner) view returns (uint256)",
 		"function decimals() view returns (uint8)",

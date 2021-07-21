@@ -5,8 +5,6 @@ import CakeTogetherAbi from "../artifacts/contracts/CakeTogether.sol/CakeTogethe
 import { getSavedContractAddress, saveContractAddress } from "../scripts/ScriptsUtils";
 import { CakeTogether } from "../typechain/CakeTogether";
 
-// https://github.com/pooltogether/multi-token-listener/blob/master/scripts/createTokenFaucets.ts
-
 const CAKE_TOKEN = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
 const CAKE_SYMBOL = "CAKE";
 const CAKE_MASTERCHEF = "0x73feaa1ee314f8c655e354234017be2193c9e24e";
