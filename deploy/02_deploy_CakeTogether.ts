@@ -6,11 +6,11 @@ import { XCake } from "../typechain/XCake";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 	const { deployments, getNamedAccounts } = hre;
 	const { deploy } = deployments;
-	const { deployer, cakeToken, pcsMasterchef } = await getNamedAccounts();
+	const { deployer, cakeToken, cakeMasterchef } = await getNamedAccounts();
 
 	const result = await deploy("CakeTogether", {
 		from: deployer,
-		args: [cakeToken, pcsMasterchef],
+		args: [cakeToken, cakeMasterchef],
 		log: true,
 	});
 
@@ -18,7 +18,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 		const xCakeToken = (await ethers.getContract("xCake", deployer)) as XCake;
 		const tx = await xCakeToken.addMinter(result.address);
 		await tx.wait();
-		console.log(tx)
+		console.log(tx);
 	}
 };
 
