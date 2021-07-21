@@ -16,16 +16,18 @@
 		"ethereum-waffle": "^3.4.0",
 		"ethers": "^5.4.1",
 		"hardhat": "^2.4.3",
+		"hardhat-abi-exporter": "^2.2.1",
 		"hardhat-gas-reporter": "^1.0.4",
+		"hardhat-preprocessor": "^0.1.4",
 		"ts-node": "^10.1.0",
 		"typescript": "^4.3.5"
 	},
 	"scripts": {
-		"network": "hardhat node --network hardhat",
+		"network": "hardhat node",
 		"compile": "hardhat compile",
 		"test": "hardhat test --network localhost",
 		"test:watch": "hardhat watch test",
-		"deploy": "hardhat run --network localhost scripts/CakeTogether.ts"
+		"deploy": "hardhat run scripts/CakeTogether.ts"
 	},
 	"dependencies": {
 		"@openzeppelin/contracts": "^4.2.0",
