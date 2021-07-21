@@ -37,10 +37,7 @@ describe("CakeTogether contract", () => {
 		});
 		const impersonatorSigner = await ethers.getSigner(IMPERSONATE_ACCOUNT);
 		const cakeToken = new ethers.Contract(CAKE_TOKEN, abi, impersonatorSigner);
-		console.log(
-			`Impersonator Cake Balance: ${ethers.BigNumber.from(await cakeToken.balanceOf(IMPERSONATE_ACCOUNT)).toString()}`
-		);
-		await cakeToken.transfer(owner, ethers.BigNumber.from("1000"));
+		await cakeToken.connect(impersonatorSigner).transfer(owner, ethers.BigNumber.from("1000"));
 		await hre.network.provider.request({
 			method: "hardhat_stopImpersonatingAccount",
 			params: [IMPERSONATE_ACCOUNT],
@@ -98,11 +95,11 @@ describe("CakeTogether contract", () => {
 		});
 		const impersonatorSigner = await ethers.getSigner(IMPERSONATE_ACCOUNT);
 		const cakeToken = new ethers.Contract(CAKE_TOKEN, abi, impersonatorSigner);
-		await cakeToken.approve(cakeTogether.address, ethers.utils.parseUnits("9999", "ether"));
+		await cakeToken.connect(impersonatorSigner).approve(cakeTogether.address, ethers.utils.parseUnits("9999", "ether"));
 		const currentRoundId = await cakeTogether.currentRoundId();
 		expect(currentRoundId).to.be.gt(0);
 
-		await expect(cakeTogether.deposit(currentRoundId, ethers.BigNumber.from("3")))
+		await expect(cakeTogether.connect(impersonatorSigner).deposit(currentRoundId, ethers.BigNumber.from("3")))
 			.to.emit(cakeTogether, "onDeposit")
 			.withArgs(currentRoundId, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", 3);
 
