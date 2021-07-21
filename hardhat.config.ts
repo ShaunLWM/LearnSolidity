@@ -31,7 +31,7 @@ module.exports = {
 			},
 			forking: {
 				url: process.env.HARDHAT_NETWORK_FORK_URL,
-				blockNumber: process.env.HARDHAT_NETWORK_FORK_BLOCK,
+				blockNumber: Number(process.env.HARDHAT_NETWORK_FORK_BLOCK),
 			},
 		},
 	},
