@@ -12,7 +12,6 @@ import { removeConsoleLog } from "hardhat-preprocessor";
 import "hardhat-watcher";
 import { HardhatUserConfig, task } from "hardhat/config";
 
-
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 	const accounts = await hre.ethers.getSigners();
 
@@ -68,12 +67,13 @@ module.exports = {
 	},
 	namedAccounts: {
 		deployer: 0,
-		pcsMasterchef: "0x73feaa1ee314f8c655e354234017be2193c9e24e",
+		cakeMasterchef: "0x73feaa1ee314f8c655e354234017be2193c9e24e",
 		cakeToken: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+		cakeWhale: "0x9239dF3E9996c776D539EB9f01A8aE8E7957b3c3",
 	},
 	preprocess: {
-    eachLine: removeConsoleLog((bre) => bre.network.name !== "hardhat" && bre.network.name !== "localhost"),
-  },
+		eachLine: removeConsoleLog((bre) => bre.network.name !== "hardhat" && bre.network.name !== "localhost"),
+	},
 	solidity: {
 		version: "0.8.4",
 		settings: {
