@@ -9,6 +9,12 @@ import "./SortitionSumTreeFactory.sol";
 
 // import "hardhat/console.sol";
 
+interface ITicket is IERC20 {
+    function mint(address to, uint256 amount) external;
+    function addMinter(address owner) external;
+    function removeMinter(address owner) external;
+}
+
 contract CakeTogether is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -18,6 +24,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
     uint256 public currentRoundId;
     address public poolAddress;
     IERC20 public token;
+    ITicket public ticket;
 
     enum Status {
         Pending,
@@ -59,11 +66,16 @@ contract CakeTogether is Ownable, ReentrancyGuard {
     event onDeposit(uint256 roundId, address player, uint256 amount);
     event onDraw();
 
-    constructor(address _token, address _poolAddress) {
+    constructor(
+        address _token,
+        address _poolAddress,
+        address _ticket
+    ) {
         poolAddress = _poolAddress;
         token = IERC20(_token);
         token.approve(_poolAddress, type(uint256).max);
         _sumTreeFactory.createTree(_TREE_KEY, _MAX_TREE_LEAVES);
+        ticket = ITicket(_ticket);
     }
 
     function changePoolAddress(address _poolAddress) external onlyOwner {
@@ -111,6 +123,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
 
         _rounds[_roundId].amountCollected += _amount;
         _rounds[_roundId].endTicketId = _rounds[_roundId].endTicketId + _amount;
+        ticket.mint(msg.sender, _amount);
 
         // TODO: deposit in Cake Pool
         // TODO: give user xCake
