@@ -1,15 +1,7 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
-import { assert, expect } from "chai";
-import hre, { ethers } from "hardhat";
-import CakeTogetherAbi from "../artifacts/contracts/CakeTogether.sol/CakeTogether.json";
-import { getSavedContractAddress, saveContractAddress } from "../scripts/ScriptsUtils";
+import { expect } from "chai";
+import hre, { ethers, getNamedAccounts } from "hardhat";
 import { CakeTogether } from "../typechain/CakeTogether";
-
-const CAKE_TOKEN = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
-const CAKE_SYMBOL = "CAKE";
-const CAKE_MASTERCHEF = "0x73feaa1ee314f8c655e354234017be2193c9e24e";
-
-const IMPERSONATE_ACCOUNT = "0x9239dF3E9996c776D539EB9f01A8aE8E7957b3c3";
+import { setupTest } from "./setup";
 
 const abi = [
 	"function balanceOf(address owner) view returns (uint256)",
@@ -21,30 +13,21 @@ const abi = [
 	"event Transfer(address indexed from, address indexed to, uint amount)",
 ];
 
-describe("Hardhat Runtime Environment", function () {
-	it("should have a config field", function () {
-		assert.notEqual(hre.config, undefined);
-	});
-});
-
 describe("CakeTogether contract", () => {
 	let cakeTogether: CakeTogether;
-	let owner: SignerWithAddress;
+	let owner: string;
+
+	let IMPERSONATE_ACCOUNT: string;
+	let CAKE_TOKEN: string;
 
 	before(async () => {
-		const signers = await ethers.getSigners();
-		owner = signers[0];
-		let CakeTogetherContract = await ethers.getContractFactory("CakeTogether");
-		const localAddress = getSavedContractAddress("CakeTogether");
-		if (localAddress) {
-			console.log(`Using old contract address ${localAddress}`);
-			cakeTogether = (await ethers.getContractAt(CakeTogetherAbi.abi, localAddress)) as CakeTogether;
-		} else {
-			cakeTogether = (await CakeTogetherContract.deploy(CAKE_TOKEN, CAKE_MASTERCHEF)) as CakeTogether;
-			await cakeTogether.deployed();
-			console.log("CakeTogether deployed to:", cakeTogether.address);
-			saveContractAddress("CakeTogether", cakeTogether.address);
-		}
+		const accounts = await getNamedAccounts();
+		const results = await setupTest();
+		cakeTogether = results.deployer.cakeTogether;
+		owner = results.deployer.address;
+
+		IMPERSONATE_ACCOUNT = accounts.cakeWhale;
+		CAKE_TOKEN = accounts.cakeToken;
 	});
 
 	beforeEach(async () => {
@@ -57,7 +40,7 @@ describe("CakeTogether contract", () => {
 		console.log(
 			`Impersonator Cake Balance: ${ethers.BigNumber.from(await cakeToken.balanceOf(IMPERSONATE_ACCOUNT)).toString()}`
 		);
-		await cakeToken.transfer(owner.address, ethers.BigNumber.from("1000"));
+		await cakeToken.transfer(owner, ethers.BigNumber.from("1000"));
 		await hre.network.provider.request({
 			method: "hardhat_stopImpersonatingAccount",
 			params: [IMPERSONATE_ACCOUNT],
@@ -65,7 +48,7 @@ describe("CakeTogether contract", () => {
 	});
 
 	it("Deployment should assign the deployer as owner", async () => {
-		expect(await cakeTogether.owner()).to.equal(owner.address);
+		expect(await cakeTogether.owner()).to.equal(owner);
 	});
 
 	it("currentRoundId should be 0", async () => {
@@ -94,7 +77,7 @@ describe("CakeTogether contract", () => {
 	});
 
 	it("should allow owner to enter round", async () => {
-		const cakeToken = new ethers.Contract(CAKE_TOKEN, abi, owner);
+		const cakeToken = new ethers.Contract(CAKE_TOKEN, abi, await ethers.getSigner(owner));
 		await cakeToken.approve(cakeTogether.address, ethers.utils.parseUnits("9999", "ether"));
 		const currentRoundId = await cakeTogether.currentRoundId();
 		expect(currentRoundId).to.be.gt(0);
