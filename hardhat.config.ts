@@ -67,8 +67,8 @@ module.exports = {
 	},
 	namedAccounts: {
 		deployer: 0,
-		cakeMasterchef: "0x73feaa1ee314f8c655e354234017be2193c9e24e",
-		cakeToken: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+		cakeMasterchef: "0x73feaa1eE314F8c655E354234017bE2193C9E24E",
+		cakeToken: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
 		cakeWhale: "0x9239dF3E9996c776D539EB9f01A8aE8E7957b3c3",
 	},
 	preprocess: {
