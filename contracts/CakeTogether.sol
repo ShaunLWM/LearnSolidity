@@ -6,12 +6,15 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./SortitionSumTreeFactory.sol";
+import "./strategies/pancakeswap/IMasterChef.sol";
 
 // import "hardhat/console.sol";
 
 interface ITicket is IERC20 {
     function mint(address to, uint256 amount) external;
+
     function addMinter(address owner) external;
+
     function removeMinter(address owner) external;
 }
 
@@ -22,7 +25,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
     SortitionSumTreeFactory.SortitionSumTrees internal _sumTreeFactory;
 
     uint256 public currentRoundId;
-    address public poolAddress;
+    IMasterChef public poolAddress;
     IERC20 public token;
     ITicket public ticket;
 
@@ -71,7 +74,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         address _poolAddress,
         address _ticket
     ) {
-        poolAddress = _poolAddress;
+        poolAddress = IMasterChef(_poolAddress);
         token = IERC20(_token);
         token.approve(_poolAddress, type(uint256).max);
         _sumTreeFactory.createTree(_TREE_KEY, _MAX_TREE_LEAVES);
@@ -79,7 +82,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
     }
 
     function changePoolAddress(address _poolAddress) external onlyOwner {
-        poolAddress = _poolAddress;
+        poolAddress = IMasterChef(_poolAddress);
     }
 
     function createRound() external onlyOwner returns (uint256) {
@@ -124,6 +127,7 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         _rounds[_roundId].amountCollected += _amount;
         _rounds[_roundId].endTicketId = _rounds[_roundId].endTicketId + _amount;
         ticket.mint(msg.sender, _amount);
+        poolAddress.enterStaking(_amount);
 
         // TODO: deposit in Cake Pool
         // TODO: give user xCake
