@@ -138,6 +138,31 @@ contract CakeTogether is Ownable, ReentrancyGuard {
         return _rounds[_roundId];
     }
 
+    function withdraw(uint256 _amount) external {
+        uint256 staked = getStaked();
+        if (_amount > staked) {
+            _amount = staked;
+        }
+
+        uint256 cakeBalance = token.balanceOf(address(this));
+        if (cakeBalance < _amount) {
+            poolAddress.leaveStaking(_amount - cakeBalance);
+        }
+    }
+
+    function getPendingRewards() external view returns (uint256) {
+        return poolAddress.pendingCake(0, address(this));
+    }
+
+    function getStaked() public view returns (uint256) {
+        (uint256 amount, ) = poolAddress.userInfo(0, address(this));
+        return amount;
+    }
+
+    function leave() external onlyOwner {
+        poolAddress.leaveStaking(_rounds[currentRoundId].amountCollected);
+    }
+
     function _isContract(address _addr) internal view returns (bool) {
         uint256 size;
         assembly {
