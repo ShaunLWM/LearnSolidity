@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 import { XCake } from "../typechain/XCake";
+import XCakeAbi from "../abi/xCake.json";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 	const { deployments, getNamedAccounts } = hre;
@@ -18,7 +19,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 	if (result.newlyDeployed) {
 		const tx = await xCakeToken.addMinter(result.address);
 		await tx.wait();
-		console.log(tx);
+		await hre.ethernal.push({
+			name: "CakeTogether",
+			address: result.address,
+		});
 	}
 };
 
