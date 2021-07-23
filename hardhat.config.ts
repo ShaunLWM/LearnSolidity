@@ -6,11 +6,12 @@ import "@openzeppelin/hardhat-upgrades";
 import "@typechain/hardhat";
 import "hardhat-abi-exporter";
 import "hardhat-deploy";
-import "hardhat-deploy-ethers";
+import "hardhat-ethernal";
 import "hardhat-gas-reporter";
 import { removeConsoleLog } from "hardhat-preprocessor";
 import "hardhat-watcher";
 import { HardhatUserConfig, task } from "hardhat/config";
+import "hardhat-deploy-ethers";
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 	const accounts = await hre.ethers.getSigners();
