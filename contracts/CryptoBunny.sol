@@ -123,12 +123,14 @@ contract CryptoBunny is Ownable {
 		emit RemoveSale(_bunnyIndex);
 	}
 
-	function bidBunny(uint256 _bunnyIndex, uint256 _amount) external isBunnyRange(_bunnyIndex) isBunnySale(_bunnyIndex) {
+	function bidBunny(uint256 _bunnyIndex, uint256 _amount) external isBunnyRange(_bunnyIndex) {
 		require(_amount > 0, "Amount must be a positive value");
-		require(bunnyOffer[_bunnyIndex].seller != msg.sender, "You cannot bid for your own bunny");
-		require(bunnyOffer[_bunnyIndex].selectedBidder == address(0), "Owner has already selected a winning bid");
-		require(bunnyOffer[_bunnyIndex].minPrice < _amount, "Your bid must be more than minPrice");
-		require(bunnyBids[_bunnyIndex].price < _amount, "Your bid must be more than previous bid");
+		if (bunnyOffer[_bunnyIndex].status == Status.Open) {
+			require(bunnyOffer[_bunnyIndex].seller != msg.sender, "You cannot bid for your own bunny");
+			require(bunnyOffer[_bunnyIndex].selectedBidder == address(0), "Owner has already selected a winning bid");
+			require(bunnyOffer[_bunnyIndex].minPrice < _amount, "Your bid must be more than minPrice");
+			require(bunnyBids[_bunnyIndex].price < _amount, "Your bid must be more than previous bid");
+		}
 
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: msg.sender, price: _amount, valid: true });
 		emit BunnyBid(_bunnyIndex, msg.sender, _amount);
