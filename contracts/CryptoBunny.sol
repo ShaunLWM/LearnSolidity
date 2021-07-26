@@ -126,7 +126,7 @@ contract CryptoBunny is Ownable {
 		emit RemoveSale(_bunnyIndex);
 	}
 
-	function bidBunny(uint256 _bunnyIndex, uint256 _amount) external isGamesBegin isBunnyRange(_bunnyIndex) {
+	function bidBunny(uint256 _bunnyIndex, uint256 _amount) external isBunnyRange(_bunnyIndex) {
 		require(_amount > 0, "Amount must be a positive value");
 		if (bunnyOffer[_bunnyIndex].status == Status.Open) {
 			require(bunnyToAddress[_bunnyIndex] != msg.sender, "You cannot bid for your own bunny");
@@ -141,6 +141,7 @@ contract CryptoBunny is Ownable {
 
 	function acceptBid(uint256 _bunnyIndex)
 		external
+		isGamesBegin
 		isBunnyRange(_bunnyIndex)
 		isBunnyOwner(_bunnyIndex)
 		isBunnySale(_bunnyIndex)
@@ -153,7 +154,13 @@ contract CryptoBunny is Ownable {
 	}
 
 	// after owner has accepted this bid, user can finally buy and transfer it
-	function buyBunny(uint256 _bunnyIndex) external payable isBunnyRange(_bunnyIndex) isBunnySale(_bunnyIndex) {
+	function buyBunny(uint256 _bunnyIndex)
+		external
+		payable
+		isGamesBegin
+		isBunnyRange(_bunnyIndex)
+		isBunnySale(_bunnyIndex)
+	{
 		require(bunnyOffer[_bunnyIndex].selectedBidder == msg.sender, "Bunny is not sold to you");
 		require(bunnyBids[_bunnyIndex].price == msg.value, "Incorrect token amount");
 
