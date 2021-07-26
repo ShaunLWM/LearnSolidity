@@ -18,8 +18,8 @@ contract CryptoBunny is Ownable {
 	mapping(uint256 => address) public bunnyToAddress;
 
 	struct Offer {
-		address seller;
-		uint256 minOffer;
+		address seller; // used to check if bidder = offer owner
+		uint256 minPrice;
 		uint256 timeCreated;
 		bool valid;
 		address selectedBidder;
@@ -78,12 +78,12 @@ contract CryptoBunny is Ownable {
 		isBunnyOwner(_bunnyIndex)
 	{
 		require(bunniesRemaining == 0, "All bunnies have to be claimed first");
-		require(bunnyOffer[_bunnyIndex].minOffer == 0, "Bunny is already on sale");
+		require(bunnyOffer[_bunnyIndex].minPrice == 0, "Bunny is already on sale");
 		require(_amount > 0, "Amount must be a positive value");
 
 		bunnyOffer[_bunnyIndex] = Offer({
 			seller: msg.sender,
-			minOffer: _amount,
+			minPrice: _amount,
 			timeCreated: block.timestamp,
 			valid: true,
 			selectedBidder: address(0)
@@ -101,7 +101,7 @@ contract CryptoBunny is Ownable {
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
 		bunnyOffer[_bunnyIndex] = Offer({
 			seller: address(0),
-			minOffer: 0,
+			minPrice: 0,
 			timeCreated: 0,
 			valid: false,
 			selectedBidder: address(0)
@@ -114,7 +114,8 @@ contract CryptoBunny is Ownable {
 		require(_amount > 0, "Amount must be a positive value");
 		require(bunnyOffer[_bunnyIndex].seller != msg.sender, "You cannot bid for your own bunny");
 		require(bunnyOffer[_bunnyIndex].selectedBidder == address(0), "Owner has already selected a winning bid");
-		require(bunnyBids[_bunnyIndex].price < _amount, "Your bid is lower than previous bid");
+		require(bunnyOffer[_bunnyIndex].minPrice < _amount, "Your bid must be more than minPrice");
+		require(bunnyBids[_bunnyIndex].price < _amount, "Your bid must be more than previous bid");
 
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: msg.sender, price: _amount, valid: true });
 		emit BunnyBid(_bunnyIndex, msg.sender, _amount);
@@ -142,7 +143,7 @@ contract CryptoBunny is Ownable {
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
 		bunnyOffer[_bunnyIndex] = Offer({
 			seller: address(0),
-			minOffer: 0,
+			minPrice: 0,
 			timeCreated: 0,
 			valid: false,
 			selectedBidder: address(0)
