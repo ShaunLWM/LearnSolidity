@@ -16,13 +16,19 @@ contract CryptoBunny is Ownable {
 
 	uint256 public bunniesRemaining;
 	mapping(uint256 => address) public bunnyToAddress;
-	mapping (address => uint256) public balanceOf;
+	mapping(address => uint256) public balanceOf;
+
+	enum Status {
+		Open,
+		Withdrawn,
+		Sold
+	}
 
 	struct Offer {
 		address seller; // used to check if bidder = offer owner
 		uint256 minPrice;
 		uint256 timeCreated;
-		bool valid;
+		Status status;
 		address selectedBidder;
 	}
 
@@ -57,7 +63,7 @@ contract CryptoBunny is Ownable {
 	}
 
 	modifier isBunnySale(uint256 _bunnyIndex) {
-		require(bunnyOffer[_bunnyIndex].valid, "Bunny is not on sale");
+		require(bunnyOffer[_bunnyIndex].status == Status.Open, "Bunny is not on sale");
 		_;
 	}
 
@@ -75,7 +81,7 @@ contract CryptoBunny is Ownable {
 		require(bunniesRemaining > 0, "No more bunnies left");
 		bunnyToAddress[_bunnyIndex] = msg.sender;
 		bunniesRemaining--;
-		balanceOf[msg.sender]+= 1;
+		balanceOf[msg.sender] += 1;
 		emit BunnyMinted(msg.sender, _bunnyIndex);
 	}
 
@@ -92,7 +98,7 @@ contract CryptoBunny is Ownable {
 			seller: msg.sender,
 			minPrice: _amount,
 			timeCreated: block.timestamp,
-			valid: true,
+			status: Status.Open,
 			selectedBidder: address(0)
 		});
 
@@ -110,7 +116,7 @@ contract CryptoBunny is Ownable {
 			seller: address(0),
 			minPrice: 0,
 			timeCreated: 0,
-			valid: false,
+			status: Status.Withdrawn,
 			selectedBidder: address(0)
 		});
 
@@ -152,7 +158,7 @@ contract CryptoBunny is Ownable {
 			seller: address(0),
 			minPrice: 0,
 			timeCreated: 0,
-			valid: false,
+			status: Status.Sold,
 			selectedBidder: address(0)
 		});
 
