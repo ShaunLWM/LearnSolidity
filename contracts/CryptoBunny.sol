@@ -25,7 +25,6 @@ contract CryptoBunny is Ownable {
 	}
 
 	struct Offer {
-		address seller; // used to check if bidder = offer owner
 		uint256 minPrice;
 		uint256 timeCreated;
 		Status status;
@@ -95,7 +94,6 @@ contract CryptoBunny is Ownable {
 		require(_amount > 0, "Amount must be a positive value");
 
 		bunnyOffer[_bunnyIndex] = Offer({
-			seller: msg.sender,
 			minPrice: _amount,
 			timeCreated: block.timestamp,
 			status: Status.Open,
@@ -113,7 +111,6 @@ contract CryptoBunny is Ownable {
 	{
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
 		bunnyOffer[_bunnyIndex] = Offer({
-			seller: address(0),
 			minPrice: 0,
 			timeCreated: 0,
 			status: Status.Withdrawn,
@@ -126,7 +123,7 @@ contract CryptoBunny is Ownable {
 	function bidBunny(uint256 _bunnyIndex, uint256 _amount) external isBunnyRange(_bunnyIndex) {
 		require(_amount > 0, "Amount must be a positive value");
 		if (bunnyOffer[_bunnyIndex].status == Status.Open) {
-			require(bunnyOffer[_bunnyIndex].seller != msg.sender, "You cannot bid for your own bunny");
+			require(bunnyToAddress[_bunnyIndex] != msg.sender, "You cannot bid for your own bunny");
 			require(bunnyOffer[_bunnyIndex].selectedBidder == address(0), "Owner has already selected a winning bid");
 			require(bunnyOffer[_bunnyIndex].minPrice < _amount, "Your bid must be more than minPrice");
 			require(bunnyBids[_bunnyIndex].price < _amount, "Your bid must be more than previous bid");
@@ -154,15 +151,9 @@ contract CryptoBunny is Ownable {
 		require(bunnyOffer[_bunnyIndex].selectedBidder == msg.sender, "Bunny is not sold to you");
 		require(bunnyBids[_bunnyIndex].price == msg.value, "Incorrect token amount");
 
-		address seller = bunnyOffer[_bunnyIndex].seller;
+		address seller = bunnyToAddress[_bunnyIndex];
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
-		bunnyOffer[_bunnyIndex] = Offer({
-			seller: address(0),
-			minPrice: 0,
-			timeCreated: 0,
-			status: Status.Sold,
-			selectedBidder: address(0)
-		});
+		bunnyOffer[_bunnyIndex] = Offer({ minPrice: 0, timeCreated: 0, status: Status.Sold, selectedBidder: address(0) });
 
 		bunnyToAddress[_bunnyIndex] = msg.sender;
 		pendingWithdrawals[seller] += msg.value;
