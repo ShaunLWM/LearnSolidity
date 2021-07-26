@@ -42,7 +42,7 @@
 		"hardhat-abi-exporter": "^2.2.1",
 		"hardhat-deploy": "^0.8.11",
 		"hardhat-deploy-ethers": "^0.3.0-beta.10",
-		"hardhat-ethernal": "^0.3.7",
+		"hardhat-ethernal": "^0.3.8",
 		"hardhat-gas-reporter": "^1.0.4",
 		"hardhat-preprocessor": "^0.1.4",
 		"hardhat-watcher": "^2.1.1",

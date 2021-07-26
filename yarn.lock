@@ -5711,10 +5711,10 @@ hardhat-deploy@^0.8.11:
     murmur-128 "^0.2.1"
     qs "^6.9.4"
 
-hardhat-ethernal@^0.3.7:
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/hardhat-ethernal/-/hardhat-ethernal-0.3.7.tgz#1d92aa5e532ae0fc4460a7854af35f686999355c"
-  integrity sha512-X48RrMmBIrZOxlhH6etkfgw/xTfL6p3Ddy509Lc6zDhO9CO+kxErANjBnPR0FJEfEPGuMGTdbXdeSryuKJxP8g==
+hardhat-ethernal@^0.3.8:
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/hardhat-ethernal/-/hardhat-ethernal-0.3.8.tgz#9cdb083869150dc5bcaf9f90b0c9e69d30c95c75"
+  integrity sha512-dD1Q4XUjJMBQ34ekV1RncNIgAoMKX4IaZyvL4VQDzvgQhHnT7Zf7v+fE2o//AFUOssbZXnpS2DL6gxori0+Ccw==
   dependencies:
     "@firebase/firestore-types" "^2.2.0"
     "@nomiclabs/hardhat-ethers" "^2.0.2"
