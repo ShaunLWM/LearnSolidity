@@ -65,6 +65,11 @@ contract CryptoBunny is Ownable {
 		bunniesRemaining = _totalSupply + 1;
 	}
 
+	// USED FOR TESTING PURPOSES ONLY
+	function setAllClaimed() external onlyOwner {
+		bunniesRemaining = 0;
+	}
+
 	function getBunny(uint256 _bunnyIndex) external isBunnyRange(_bunnyIndex) {
 		require(bunniesRemaining > 0, "No more bunnies left");
 		bunnyToAddress[_bunnyIndex] = msg.sender;
