@@ -19,6 +19,7 @@ contract CryptoBunny is Ownable {
 	mapping(address => uint256) public balanceOf;
 
 	enum Status {
+		Invalid,
 		Open,
 		Withdrawn,
 		Sold
