@@ -16,6 +16,7 @@ contract CryptoBunny is Ownable {
 
 	uint256 public bunniesRemaining;
 	mapping(uint256 => address) public bunnyToAddress;
+	mapping (address => uint256) public balanceOf;
 
 	struct Offer {
 		address seller; // used to check if bidder = offer owner
@@ -74,6 +75,7 @@ contract CryptoBunny is Ownable {
 		require(bunniesRemaining > 0, "No more bunnies left");
 		bunnyToAddress[_bunnyIndex] = msg.sender;
 		bunniesRemaining--;
+		balanceOf[msg.sender]+= 1;
 		emit BunnyMinted(msg.sender, _bunnyIndex);
 	}
 
@@ -156,6 +158,8 @@ contract CryptoBunny is Ownable {
 
 		bunnyToAddress[_bunnyIndex] = msg.sender;
 		pendingWithdrawals[seller] += msg.value;
+		balanceOf[msg.sender] += 1;
+		balanceOf[seller] -= 1;
 		emit TransferOwnership(_bunnyIndex, seller, msg.sender);
 	}
 
