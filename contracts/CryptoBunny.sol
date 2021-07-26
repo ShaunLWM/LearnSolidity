@@ -73,8 +73,8 @@ contract CryptoBunny is Ownable {
 	}
 
 	// USED FOR TESTING PURPOSES ONLY
-	function setAllClaimed() external onlyOwner {
-		bunniesRemaining = 0;
+	function setBunniesRemaining(uint256 value) external onlyOwner {
+		bunniesRemaining = value;
 	}
 
 	function getBunny(uint256 _bunnyIndex) external isBunnyRange(_bunnyIndex) {
