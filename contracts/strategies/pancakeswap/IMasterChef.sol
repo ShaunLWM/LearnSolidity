@@ -3,15 +3,29 @@
 pragma solidity >=0.6.0;
 
 interface IMasterChef {
-    function poolInfo(uint _pid) view external returns(address lpToken, uint allocPoint, uint lastRewardBlock, uint accCakePerShare);
-    function userInfo(uint _pid, address _account) view external returns(uint amount, uint rewardDebt);
-    function poolLength() view external returns(uint);
+  function poolInfo(uint256 _pid)
+    external
+    view
+    returns (
+      address lpToken,
+      uint256 allocPoint,
+      uint256 lastRewardBlock,
+      uint256 accCakePerShare
+    );
 
-    function deposit(uint256 _pid, uint256 _amount) external;
-    function withdraw(uint256 _pid, uint256 _amount) external;
-    function emergencyWithdraw(uint256 _pid) external;
+  function userInfo(uint256 _pid, address _account) external view returns (uint256 amount, uint256 rewardDebt);
 
-    function pendingCake(uint256 _pid, address _user) external view returns (uint256 amount);
-    function enterStaking(uint256 _amount) external;
-    function leaveStaking(uint256 _amount) external;
+  function poolLength() external view returns (uint256);
+
+  function deposit(uint256 _pid, uint256 _amount) external;
+
+  function withdraw(uint256 _pid, uint256 _amount) external;
+
+  function emergencyWithdraw(uint256 _pid) external;
+
+  function pendingCake(uint256 _pid, address _user) external view returns (uint256 amount);
+
+  function enterStaking(uint256 _amount) external;
+
+  function leaveStaking(uint256 _amount) external;
 }

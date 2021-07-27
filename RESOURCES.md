@@ -13,7 +13,6 @@ https://github.com/PancakeBunny-finance/qubit-finance
 https://github.com/harvest-finance/harvest-strategy-bsc
 https://github.com/harvest-finance/harvest-strategy-polygon
 
-
 https://github.com/ApeSwapFinance/apeswap-banana-farm
 
 https://github.com/alpaca-finance/bsc-alpaca-contract

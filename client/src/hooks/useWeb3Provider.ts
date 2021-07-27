@@ -4,18 +4,18 @@ import { useWeb3React } from "@web3-react/core";
 import { simpleRpcProvider } from "../utils/ContractHelper";
 
 const useWeb3Provider = (): ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider => {
-	const { library } = useWeb3React();
-	const refEth = useRef(library);
-	const [provider, setprovider] = useState(library || simpleRpcProvider);
+  const { library } = useWeb3React();
+  const refEth = useRef(library);
+  const [provider, setprovider] = useState(library || simpleRpcProvider);
 
-	useEffect(() => {
-		if (library !== refEth.current) {
-			setprovider(library || simpleRpcProvider);
-			refEth.current = library;
-		}
-	}, [library]);
+  useEffect(() => {
+    if (library !== refEth.current) {
+      setprovider(library || simpleRpcProvider);
+      refEth.current = library;
+    }
+  }, [library]);
 
-	return provider;
+  return provider;
 };
 
 export default useWeb3Provider;

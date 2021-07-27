@@ -6,4 +6,3 @@ export const setupTest = deployments.createFixture(async (hre, options) => {
   const accounts = await setupAccounts();
   return accounts;
 });
-

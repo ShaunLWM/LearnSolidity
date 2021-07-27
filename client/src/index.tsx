@@ -6,12 +6,12 @@ import reportWebVitals from "./reportWebVitals";
 import { getLibrary } from "./utils/web3React";
 
 ReactDOM.render(
-	<React.StrictMode>
-		<Web3ReactProvider getLibrary={getLibrary}>
-			<App />
-		</Web3ReactProvider>
-	</React.StrictMode>,
-	document.getElementById("root")
+  <React.StrictMode>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <App />
+    </Web3ReactProvider>
+  </React.StrictMode>,
+  document.getElementById("root")
 );
 
 reportWebVitals();
