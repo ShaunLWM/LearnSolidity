@@ -115,7 +115,6 @@ contract CryptoBunny is Ownable {
 		isBunnyOwner(_bunnyIndex)
 		isBunnySale(_bunnyIndex)
 	{
-		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
 		bunnyOffer[_bunnyIndex] = Offer({
 			minPrice: 0,
 			timeCreated: 0,
