@@ -83,6 +83,7 @@ contract CryptoBunny is Ownable {
 	}
 
 	function getBunny(uint256 _bunnyIndex) external isBunnyRange(_bunnyIndex) {
+		require(bunnyToAddress[_bunnyIndex] == address(0), "Bunny has already been claimed");
 		require(bunniesRemaining > 0, "No more bunnies left");
 		bunnyToAddress[_bunnyIndex] = msg.sender;
 		bunniesRemaining--;
