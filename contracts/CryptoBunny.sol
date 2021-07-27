@@ -8,8 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract CryptoBunny is Ownable {
-	// index 0 to 9999 is 10,000 items
-	uint256 private _totalSupply = 9999;
+	uint256 private _totalSupply = 10000;
 	string private _symbol = "BNY";
 	string private _name = "CryptoBunny";
 	uint8 private _decimals = 18;
@@ -58,7 +57,7 @@ contract CryptoBunny is Ownable {
 	}
 
 	modifier isBunnyRange(uint256 _bunnyIndex) {
-		require(_bunnyIndex >= 0 && _bunnyIndex <= _totalSupply, "bunnyIndex out of range");
+		require(_bunnyIndex >= 1 && _bunnyIndex <= _totalSupply, "bunnyIndex out of range");
 		_;
 	}
 
@@ -73,8 +72,7 @@ contract CryptoBunny is Ownable {
 	}
 
 	constructor() {
-		// _totalSupply is 9999, but we check if bunniesRemaining > 0
-		bunniesRemaining = _totalSupply + 1;
+		bunniesRemaining = _totalSupply;
 	}
 
 	// USED FOR TESTING PURPOSES ONLY
