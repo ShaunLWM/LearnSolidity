@@ -21,6 +21,7 @@ contract CryptoBunny is Ownable {
 		Invalid,
 		Open,
 		Withdrawn,
+		AwaitingWithdrawal,
 		Sold
 	}
 
@@ -95,7 +96,12 @@ contract CryptoBunny is Ownable {
 		isBunnyRange(_bunnyIndex)
 		isBunnyOwner(_bunnyIndex)
 	{
-		require(bunnyOffer[_bunnyIndex].minPrice == 0, "Bunny is already on sale");
+		require(
+			bunnyOffer[_bunnyIndex].status == Status.Invalid ||
+				bunnyOffer[_bunnyIndex].status == Status.Withdrawn ||
+				bunnyOffer[_bunnyIndex].status == Status.Sold,
+			"Bunny is already on sale"
+		);
 		require(_amount > 0, "Amount must be a positive value");
 
 		bunnyOffer[_bunnyIndex] = Offer({
@@ -147,6 +153,7 @@ contract CryptoBunny is Ownable {
 		require(bunnyBids[_bunnyIndex].bidder != address(0), "No bidder for bunny");
 
 		bunnyOffer[_bunnyIndex].selectedBidder = bunnyBids[_bunnyIndex].bidder;
+		bunnyOffer[_bunnyIndex].status == Status.AwaitingWithdrawal;
 		emit AcceptBid(_bunnyIndex, bunnyBids[_bunnyIndex].bidder, bunnyBids[_bunnyIndex].price);
 		// Offer and Bid will still be valid till bidder has BOUGHT the bunny
 	}
