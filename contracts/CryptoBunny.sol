@@ -53,6 +53,7 @@ contract CryptoBunny is Ownable {
 	event RemoveSale(uint256 bunnyIndex);
 	event BunnyBid(uint256 bunnyIndex, address bidder, uint256 _amount);
 	event AcceptBid(uint256 bunnyIndex, address bidder, uint256 _amount);
+	event WithdrawBid(uint256 bunnyIndex, address bidder, uint256 _amount);
 	event TransferOwnership(uint256 _bunnyIndex, address from, address to);
 
 	modifier isGamesBegin() {
@@ -183,7 +184,7 @@ contract CryptoBunny is Ownable {
 	{
 		require(bunnyBids[_bunnyIndex].bidder == address(0), "Please bid");
 		require(msg.value >= bunnyOffer[_bunnyIndex].minPrice, "Please offer minPrice");
-		
+
 		address seller = bunnyToAddress[_bunnyIndex];
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
 		bunnyOffer[_bunnyIndex] = Offer({ minPrice: 0, timeCreated: 0, status: Status.Sold, selectedBidder: address(0) });
@@ -195,7 +196,14 @@ contract CryptoBunny is Ownable {
 		emit TransferOwnership(_bunnyIndex, seller, msg.sender);
 	}
 
-	function withdrawBid() external {}
+	function withdrawBid(uint256 _bunnyIndex) external isGamesBegin isBunnyRange(_bunnyIndex) {
+		require(msg.sender == bunnyBids[_bunnyIndex].bidder, "Not bidder");
+		require(msg.sender != bunnyToAddress[_bunnyIndex], "You are the owner");
+
+		pendingWithdrawals[msg.sender] += bunnyBids[_bunnyIndex].price;
+		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
+		emit WithdrawBid(_bunnyIndex, msg.sender, bunnyBids[_bunnyIndex].price);
+	}
 
 	function withdrawPending() external {
 		require(pendingWithdrawals[msg.sender] > 0, "No valid withdrawals");
