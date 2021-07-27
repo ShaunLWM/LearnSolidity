@@ -8,6 +8,7 @@ enum Status {
 	Invalid,
 	Open,
 	Withdrawn,
+	AwaitingWithdrawal,
 	Sold,
 }
 
@@ -41,13 +42,21 @@ describe("CakeTogether contract", () => {
 		await setRemainingBunnies();
 		await expect(CryptoBunny.offerBunnyForSale(0, 1000)).to.be.revertedWith("bunnyIndex out of range");
 		await expect(CryptoBunny.withdrawBunnySale(0)).to.be.revertedWith("bunnyIndex out of range");
-		await expect(CryptoBunny.bidBunny(0, 100)).to.be.revertedWith("bunnyIndex out of range");
+		await expect(
+			CryptoBunny.bidBunny(0, {
+				value: 100,
+			})
+		).to.be.revertedWith("bunnyIndex out of range");
 		await expect(CryptoBunny.acceptBid(0)).to.be.revertedWith("bunnyIndex out of range");
 		await expect(CryptoBunny.buyBunny(0)).to.be.revertedWith("bunnyIndex out of range");
 
 		await expect(CryptoBunny.offerBunnyForSale(10001, 1000)).to.be.revertedWith("bunnyIndex out of range");
 		await expect(CryptoBunny.withdrawBunnySale(10001)).to.be.revertedWith("bunnyIndex out of range");
-		await expect(CryptoBunny.bidBunny(10001, 100)).to.be.revertedWith("bunnyIndex out of range");
+		await expect(
+			CryptoBunny.bidBunny(10001, {
+				value: 100,
+			})
+		).to.be.revertedWith("bunnyIndex out of range");
 		await expect(CryptoBunny.acceptBid(10001)).to.be.revertedWith("bunnyIndex out of range");
 		await expect(CryptoBunny.buyBunny(10001)).to.be.revertedWith("bunnyIndex out of range");
 	});
@@ -75,6 +84,12 @@ describe("CakeTogether contract", () => {
 			expect(await CryptoBunny.balanceOf(alice.address)).to.be.eq(1);
 		});
 
+		it("should not allow Bob to claim bunny 1 again", async () => {
+			await expect(BobCryptoBunny.getBunny(1)).to.be.revertedWith("Bunny has already been claimed");
+			expect(await CryptoBunny.bunnyToAddress(1)).to.be.eq(alice.address);
+			expect(await CryptoBunny.bunniesRemaining()).to.be.eq(9999);
+		});
+
 		it("should not allow non-owner to commit bunny action", async () => {
 			await setRemainingBunnies();
 			await expect(BobCryptoBunny.withdrawBunnySale(1)).to.be.revertedWith("Not bunny owner");
@@ -88,7 +103,7 @@ describe("CakeTogether contract", () => {
 		it("should allow bid before pre-sale of bunny", async () => {
 			await setRemainingBunnies();
 
-			await expect(BobCryptoBunny.bidBunny(1, ethers.utils.parseUnits("1", "ether")))
+			await expect(BobCryptoBunny.bidBunny(1, { value: ethers.utils.parseUnits("1", "ether") }))
 				.to.emit(CryptoBunny, "BunnyBid")
 				.withArgs(1, bob.address, ethers.utils.parseUnits("1", "ether"));
 
@@ -120,7 +135,7 @@ describe("CakeTogether contract", () => {
 		});
 
 		it("should not allow owner to bid for their bunny", async () => {
-			await expect(AliceCryptoBunny.bidBunny(1, 10)).to.be.revertedWith("You cannot bid for your own bunny");
+			await expect(AliceCryptoBunny.bidBunny(1, { value: 10 })).to.be.revertedWith("You cannot bid for your own bunny");
 		});
 
 		it("should allow proper bidding of bunny", async () => {
