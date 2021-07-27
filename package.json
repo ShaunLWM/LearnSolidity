@@ -19,7 +19,8 @@
 		"mainnet:run": "hardhat --network mainnet run",
 		"mainnet:sourcify": "hardhat --network mainnet sourcify",
 		"mainnet:verify": "hardhat --network mainnet verify",
-		"prettier:contracts": "npx prettier --write ./contracts/**/*.sol"
+		"prettier:contracts": "npx prettier --write ./contracts/**/*.sol",
+		"coverage": "hardhat --network localhost coverage --testfiles ./test/*.ts"
 	},
 	"devDependencies": {
 		"@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
@@ -47,6 +48,7 @@
 		"hardhat-preprocessor": "^0.1.4",
 		"hardhat-watcher": "^2.1.1",
 		"prettier-plugin-solidity": "^1.0.0-beta.17",
+		"solidity-coverage": "^0.7.16",
 		"sortition-sum-tree-factory": "^0.1.0",
 		"ts-generator": "^0.1.1",
 		"ts-node": "^10.1.0",

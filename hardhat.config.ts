@@ -12,6 +12,7 @@ import { removeConsoleLog } from "hardhat-preprocessor";
 import "hardhat-watcher";
 import { HardhatUserConfig, task } from "hardhat/config";
 import "hardhat-deploy-ethers";
+import "solidity-coverage"
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 	const accounts = await hre.ethers.getSigners();
