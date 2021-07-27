@@ -7,6 +7,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+// TODO: nonReentrant for getBunny?
+// TODO: prevent contract from buying?
+
 contract CryptoBunny is Ownable {
 	uint256 private _totalSupply = 10000;
 	string private _symbol = "BNY";
@@ -120,6 +123,11 @@ contract CryptoBunny is Ownable {
 		isBunnyOwner(_bunnyIndex)
 		isBunnySale(_bunnyIndex)
 	{
+		if (bunnyBids[_bunnyIndex].bidder != address(0)) {
+			pendingWithdrawals[bunnyBids[_bunnyIndex].bidder] += bunnyBids[_bunnyIndex].price;
+		}
+
+		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
 		bunnyOffer[_bunnyIndex] = Offer({
 			minPrice: 0,
 			timeCreated: 0,
@@ -130,17 +138,18 @@ contract CryptoBunny is Ownable {
 		emit RemoveSale(_bunnyIndex);
 	}
 
-	function bidBunny(uint256 _bunnyIndex, uint256 _amount) external isBunnyRange(_bunnyIndex) {
-		require(_amount > 0, "Amount must be a positive value");
-		if (bunnyOffer[_bunnyIndex].status == Status.Open) {
-			require(bunnyToAddress[_bunnyIndex] != msg.sender, "You cannot bid for your own bunny");
-			require(bunnyOffer[_bunnyIndex].selectedBidder == address(0), "Owner has already selected a winning bid");
-			require(bunnyOffer[_bunnyIndex].minPrice < _amount, "Your bid must be more than minPrice");
-			require(bunnyBids[_bunnyIndex].price < _amount, "Your bid must be more than previous bid");
-		}
+	function bidBunny(uint256 _bunnyIndex) external payable isBunnyRange(_bunnyIndex) isBunnySale(_bunnyIndex) {
+		require(msg.value > 0, "Amount must be a positive value");
+		require(bunnyToAddress[_bunnyIndex] != msg.sender, "You cannot bid for your own bunny");
+		require(bunnyOffer[_bunnyIndex].selectedBidder == address(0), "Owner has already selected a winning bid");
+		require(
+			bunnyBids[_bunnyIndex].price < msg.value && bunnyOffer[_bunnyIndex].minPrice < msg.value,
+			"Your bid must be more than previous bid or minPrice"
+		);
 
-		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: msg.sender, price: _amount, valid: true });
-		emit BunnyBid(_bunnyIndex, msg.sender, _amount);
+		pendingWithdrawals[bunnyBids[_bunnyIndex].bidder] += bunnyBids[_bunnyIndex].price;
+		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: msg.sender, price: msg.value, valid: true });
+		emit BunnyBid(_bunnyIndex, msg.sender, msg.value);
 	}
 
 	function acceptBid(uint256 _bunnyIndex)
@@ -152,13 +161,19 @@ contract CryptoBunny is Ownable {
 	{
 		require(bunnyBids[_bunnyIndex].bidder != address(0), "No bidder for bunny");
 
-		bunnyOffer[_bunnyIndex].selectedBidder = bunnyBids[_bunnyIndex].bidder;
-		bunnyOffer[_bunnyIndex].status == Status.AwaitingWithdrawal;
+		bunnyToAddress[_bunnyIndex] = bunnyBids[_bunnyIndex].bidder;
+		emit TransferOwnership(_bunnyIndex, msg.sender, bunnyBids[_bunnyIndex].bidder);
+
+		balanceOf[bunnyBids[_bunnyIndex].bidder] += 1;
+		balanceOf[msg.sender] -= 1;
+		pendingWithdrawals[msg.sender] += bunnyBids[_bunnyIndex].price;
 		emit AcceptBid(_bunnyIndex, bunnyBids[_bunnyIndex].bidder, bunnyBids[_bunnyIndex].price);
-		// Offer and Bid will still be valid till bidder has BOUGHT the bunny
+
+		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
+		bunnyOffer[_bunnyIndex] = Offer({ minPrice: 0, timeCreated: 0, status: Status.Sold, selectedBidder: address(0) });
 	}
 
-	// after owner has accepted this bid, user can finally buy and transfer it
+	// allow user to buy Bunny provided if Bunny is on sale + NO bids has been done
 	function buyBunny(uint256 _bunnyIndex)
 		external
 		payable
@@ -166,9 +181,9 @@ contract CryptoBunny is Ownable {
 		isBunnyRange(_bunnyIndex)
 		isBunnySale(_bunnyIndex)
 	{
-		require(bunnyOffer[_bunnyIndex].selectedBidder == msg.sender, "Bunny is not sold to you");
-		require(bunnyBids[_bunnyIndex].price == msg.value, "Incorrect token amount");
-
+		require(bunnyBids[_bunnyIndex].bidder == address(0), "Please bid");
+		require(msg.value >= bunnyOffer[_bunnyIndex].minPrice, "Please offer minPrice");
+		
 		address seller = bunnyToAddress[_bunnyIndex];
 		bunnyBids[_bunnyIndex] = Bid({ bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false });
 		bunnyOffer[_bunnyIndex] = Offer({ minPrice: 0, timeCreated: 0, status: Status.Sold, selectedBidder: address(0) });
