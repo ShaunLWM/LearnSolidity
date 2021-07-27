@@ -132,3 +132,4 @@ typechain
 contracts.json
 abi
 deployments
+bin

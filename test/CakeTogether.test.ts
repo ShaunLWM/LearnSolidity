@@ -3,6 +3,7 @@ import hre, { ethers, getNamedAccounts } from "hardhat";
 import { CakeTogether } from "../typechain/CakeTogether";
 import { XCake } from "../typechain/XCake";
 import { setupTest } from "./setup";
+import { advanceNBlock } from "./TestUtils";
 
 const abi = [
 	"function balanceOf(address owner) view returns (uint256)",
@@ -40,7 +41,7 @@ describe("CakeTogether contract", () => {
 		});
 		const impersonatorSigner = await ethers.getSigner(IMPERSONATE_ACCOUNT);
 		const cakeToken = new ethers.Contract(CAKE_TOKEN, abi, impersonatorSigner);
-		await cakeToken.connect(impersonatorSigner).transfer(owner, ethers.BigNumber.from("1000"));
+		await cakeToken.connect(impersonatorSigner).transfer(owner, ethers.BigNumber.from("99999999"));
 		await hre.network.provider.request({
 			method: "hardhat_stopImpersonatingAccount",
 			params: [IMPERSONATE_ACCOUNT],
@@ -81,23 +82,32 @@ describe("CakeTogether contract", () => {
 		await cakeToken.approve(cakeTogether.address, ethers.utils.parseUnits("9999", "ether"));
 		const currentRoundId = await cakeTogether.currentRoundId();
 		expect(currentRoundId).to.be.gt(0);
-		await expect(cakeTogether.deposit(currentRoundId, ethers.BigNumber.from("42")))
+		await expect(cakeTogether.deposit(currentRoundId, ethers.BigNumber.from("9999")))
 			.to.emit(cakeTogether, "onDeposit")
-			.withArgs(currentRoundId, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", 42);
+			.withArgs(currentRoundId, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", 9999);
 
 		const round = await cakeTogether.getRound(currentRoundId);
 		expect(ethers.BigNumber.from(round.startTicketId).toString()).to.be.eq("1");
-		expect(ethers.BigNumber.from(round.amountCollected).toString()).to.be.eq("42");
-		expect(ethers.BigNumber.from(round.endTicketId).toString()).to.be.eq("42");
+		expect(ethers.BigNumber.from(round.amountCollected).toString()).to.be.eq("9999");
+		expect(ethers.BigNumber.from(round.endTicketId).toString()).to.be.eq("9999");
 
 		const ticket = await xCake.balanceOf(owner);
-		expect(ticket).to.be.eq(42);
+		expect(ticket).to.be.eq(9999);
 
 		const totalMinted = await xCake.totalSupply();
-		expect(totalMinted).to.be.eq(42);
+		expect(totalMinted).to.be.eq(9999);
+		await advanceNBlock(2400);
+		const pendingRewards = await cakeTogether.getPendingRewards();
+		console.log(`------- PENDING REWARDS: ${pendingRewards}`);
+		const pendingRewards2 = await cakeTogether.getStaked();
+		console.log(`------- USERINFO: ${pendingRewards2}`);
+		const tx = await cakeTogether.leave();
+		await tx.wait();
+		const balance = await cakeToken.balanceOf(cakeTogether.address);
+		console.log(`NEW BALKACE ${balance}`);
 	});
 
-	it("should allow non-owner to enter round", async () => {
+	it.skip("should allow non-owner to enter round", async () => {
 		await hre.network.provider.request({
 			method: "hardhat_impersonateAccount",
 			params: [IMPERSONATE_ACCOUNT],
@@ -114,8 +124,8 @@ describe("CakeTogether contract", () => {
 
 		const round = await cakeTogether.getRound(currentRoundId);
 		expect(ethers.BigNumber.from(round.startTicketId).toString()).to.be.eq("1");
-		expect(ethers.BigNumber.from(round.amountCollected).toString()).to.be.eq("45");
-		expect(ethers.BigNumber.from(round.endTicketId).toString()).to.be.eq("45");
+		expect(ethers.BigNumber.from(round.amountCollected).toString()).to.be.eq("1003");
+		expect(ethers.BigNumber.from(round.endTicketId).toString()).to.be.eq("1003");
 
 		const ticket = await xCake.balanceOf(IMPERSONATE_ACCOUNT);
 		expect(ticket).to.be.eq(3);

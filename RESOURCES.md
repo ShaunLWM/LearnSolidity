@@ -18,4 +18,5 @@ https://github.com/ApeSwapFinance/apeswap-banana-farm
 
 https://github.com/alpaca-finance/bsc-alpaca-contract
 https://github.com/xludx/zbs-swap
-https://github.com/xludx/zbs-swap
+https://github.com/darkforest-eth/eth
+https://github.com/gnosis/dao-module
