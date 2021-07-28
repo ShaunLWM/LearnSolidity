@@ -3,22 +3,20 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 // TODO: nonReentrant for getBunny?
 // TODO: prevent contract from buying?
-
-contract CryptoBunny is Ownable {
-  uint256 private _totalSupply = 10000;
-  string private _symbol = "BNY";
+contract CryptoBunny is ERC721, ERC721Enumerable, Ownable {
+  uint256 private MAX_SUPPLY = 10000;
+  string private _symbol = unicode"β";
   string private _name = "CryptoBunny";
   uint8 private _decimals = 18;
 
-  uint256 public bunniesRemaining;
-  mapping(uint256 => address) public bunnyToAddress;
-  mapping(address => uint256) public balanceOf;
+  string private _baseTokenURI;
 
   enum Status {
     Invalid,
@@ -47,6 +45,8 @@ contract CryptoBunny is Ownable {
   mapping(uint256 => Bid) public bunnyBids;
 
   mapping(address => uint256) public pendingWithdrawals;
+  Status public saleStatus = Status.Invalid;
+  // Invalid = deployed, Open = Sale, Sold = ended
 
   event BunnyMinted(address owner, uint256 bunnyIndex);
   event BunnySale(uint256 bunnyIndex, uint256 amount);
@@ -54,20 +54,19 @@ contract CryptoBunny is Ownable {
   event BunnyBid(uint256 bunnyIndex, address bidder, uint256 _amount);
   event AcceptBid(uint256 bunnyIndex, address bidder, uint256 _amount);
   event WithdrawBid(uint256 bunnyIndex, address bidder, uint256 _amount);
-  event TransferOwnership(uint256 _bunnyIndex, address from, address to);
 
   modifier isGamesBegin() {
-    require(bunniesRemaining == 0, "All bunnies have to be claimed first");
+    require(totalSupply() == MAX_SUPPLY, "All bunnies have to be claimed first");
     _;
   }
 
   modifier isBunnyRange(uint256 _bunnyIndex) {
-    require(_bunnyIndex >= 1 && _bunnyIndex <= _totalSupply, "bunnyIndex out of range");
+    require(_bunnyIndex >= 1 && _bunnyIndex <= MAX_SUPPLY, "bunnyIndex out of range");
     _;
   }
 
   modifier isBunnyOwner(uint256 _bunnyIndex) {
-    require(bunnyToAddress[_bunnyIndex] == msg.sender, "Not bunny owner");
+    require(ownerOf(_bunnyIndex) == msg.sender, "Not bunny owner");
     _;
   }
 
@@ -76,22 +75,19 @@ contract CryptoBunny is Ownable {
     _;
   }
 
-  constructor() {
-    bunniesRemaining = _totalSupply;
-  }
-
-  // USED FOR TESTING PURPOSES ONLY
-  function setBunniesRemaining(uint256 value) external onlyOwner {
-    bunniesRemaining = value;
+  constructor() ERC721(_name, _symbol) {
+    _baseTokenURI = "";
   }
 
   function getBunny(uint256 _bunnyIndex) external isBunnyRange(_bunnyIndex) {
-    require(bunnyToAddress[_bunnyIndex] == address(0), "Bunny has already been claimed");
-    require(bunniesRemaining > 0, "No more bunnies left");
-    bunnyToAddress[_bunnyIndex] = msg.sender;
-    bunniesRemaining--;
-    balanceOf[msg.sender] += 1;
+    require(totalSupply() + 1 <= MAX_SUPPLY, "Max Bunnies minted");
+    require(ownerOf(_bunnyIndex) == address(0), "Bunny has already been claimed");
+    _safeMint(msg.sender, _bunnyIndex);
     emit BunnyMinted(msg.sender, _bunnyIndex);
+  }
+
+  function bunniesRemaining() external view returns (uint256) {
+    return MAX_SUPPLY - totalSupply();
   }
 
   function offerBunnyForSale(uint256 _bunnyIndex, uint256 _amount)
@@ -141,7 +137,7 @@ contract CryptoBunny is Ownable {
 
   function bidBunny(uint256 _bunnyIndex) external payable isBunnyRange(_bunnyIndex) {
     require(msg.value > 0, "Amount must be a positive value");
-    require(bunnyToAddress[_bunnyIndex] != msg.sender, "You cannot bid for your own bunny");
+    require(ownerOf(_bunnyIndex) != msg.sender, "You cannot bid for your own bunny");
     require(bunnyOffer[_bunnyIndex].selectedBidder == address(0), "Owner has already selected a winning bid");
     require(
       bunnyBids[_bunnyIndex].price < msg.value && bunnyOffer[_bunnyIndex].minPrice < msg.value,
@@ -162,11 +158,8 @@ contract CryptoBunny is Ownable {
   {
     require(bunnyBids[_bunnyIndex].bidder != address(0), "No bidder for bunny");
 
-    bunnyToAddress[_bunnyIndex] = bunnyBids[_bunnyIndex].bidder;
-    emit TransferOwnership(_bunnyIndex, msg.sender, bunnyBids[_bunnyIndex].bidder);
+    safeTransferFrom(msg.sender, bunnyBids[_bunnyIndex].bidder, _bunnyIndex);
 
-    balanceOf[bunnyBids[_bunnyIndex].bidder] += 1;
-    balanceOf[msg.sender] -= 1;
     pendingWithdrawals[msg.sender] += bunnyBids[_bunnyIndex].price;
     emit AcceptBid(_bunnyIndex, bunnyBids[_bunnyIndex].bidder, bunnyBids[_bunnyIndex].price);
 
@@ -179,20 +172,17 @@ contract CryptoBunny is Ownable {
     require(bunnyBids[_bunnyIndex].bidder == address(0), "Please bid");
     require(msg.value >= bunnyOffer[_bunnyIndex].minPrice, "Please offer minPrice");
 
-    address seller = bunnyToAddress[_bunnyIndex];
+    address seller = ownerOf(_bunnyIndex);
     bunnyBids[_bunnyIndex] = Bid({bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false});
     bunnyOffer[_bunnyIndex] = Offer({minPrice: 0, timeCreated: 0, status: Status.Sold, selectedBidder: address(0)});
 
-    bunnyToAddress[_bunnyIndex] = msg.sender;
+    safeTransferFrom(seller, msg.sender, _bunnyIndex);
     pendingWithdrawals[seller] += msg.value;
-    balanceOf[msg.sender] += 1;
-    balanceOf[seller] -= 1;
-    emit TransferOwnership(_bunnyIndex, seller, msg.sender);
   }
 
   function withdrawBid(uint256 _bunnyIndex) external isGamesBegin isBunnyRange(_bunnyIndex) {
     require(msg.sender == bunnyBids[_bunnyIndex].bidder, "Not bidder");
-    require(msg.sender != bunnyToAddress[_bunnyIndex], "You are the owner");
+    require(msg.sender != ownerOf(_bunnyIndex), "You are the owner");
 
     pendingWithdrawals[msg.sender] += bunnyBids[_bunnyIndex].price;
     bunnyBids[_bunnyIndex] = Bid({bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false});
@@ -205,5 +195,25 @@ contract CryptoBunny is Ownable {
     pendingWithdrawals[msg.sender] = 0;
     (bool success, ) = msg.sender.call{value: _amount}("");
     require(success, "Transfer failed.");
+  }
+
+  function _baseURI() internal view virtual override returns (string memory) {
+    return _baseTokenURI;
+  }
+
+  function _beforeTokenTransfer(
+    address from,
+    address to,
+    uint256 tokenId
+  ) internal virtual override(ERC721, ERC721Enumerable) {
+    super._beforeTokenTransfer(from, to, tokenId);
+  }
+
+  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
+    return super.supportsInterface(interfaceId);
+  }
+
+  function setBaseURI(string memory baseURI) external onlyOwner {
+    _baseTokenURI = baseURI;
   }
 }
