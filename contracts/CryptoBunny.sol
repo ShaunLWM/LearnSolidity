@@ -51,9 +51,10 @@ contract CryptoBunny is ERC721, ERC721Enumerable, Ownable {
   event BunnyMinted(address owner, uint256 bunnyIndex);
   event BunnySale(uint256 bunnyIndex, uint256 amount);
   event RemoveSale(uint256 bunnyIndex);
-  event BunnyBid(uint256 bunnyIndex, address bidder, uint256 _amount);
-  event AcceptBid(uint256 bunnyIndex, address bidder, uint256 _amount);
-  event WithdrawBid(uint256 bunnyIndex, address bidder, uint256 _amount);
+  event BunnyBid(uint256 bunnyIndex, address bidder, uint256 amount);
+  event AcceptBid(uint256 bunnyIndex, address bidder, uint256 amount);
+  event WithdrawBid(uint256 bunnyIndex, address bidder, uint256 amount);
+  event BidOverride(uint256 bunnyIndex, uint256 prev, uint256 amount);
 
   modifier isGamesBegin() {
     require(totalSupply() == MAX_SUPPLY, "All bunnies have to be claimed first");
