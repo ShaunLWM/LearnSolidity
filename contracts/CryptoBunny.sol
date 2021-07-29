@@ -82,7 +82,6 @@ contract CryptoBunny is ERC721, ERC721Enumerable, Ownable {
 
   function getBunny(uint256 _bunnyIndex) external isBunnyRange(_bunnyIndex) {
     require(totalSupply() + 1 <= MAX_SUPPLY, "Max Bunnies minted");
-    require(ownerOf(_bunnyIndex) == address(0), "Bunny has already been claimed");
     _safeMint(msg.sender, _bunnyIndex);
     emit BunnyMinted(msg.sender, _bunnyIndex);
   }
