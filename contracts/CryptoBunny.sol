@@ -57,7 +57,7 @@ contract CryptoBunny is ERC721, ERC721Enumerable, Ownable {
   event BidOverride(uint256 bunnyIndex, uint256 prev, uint256 amount);
 
   modifier isGamesBegin() {
-    require(totalSupply() == MAX_SUPPLY, "All bunnies have to be claimed first");
+    require(totalSupply() == MAX_SUPPLY || saleStatus == Status.Sold, "All bunnies have to be claimed first");
     _;
   }
 
@@ -196,6 +196,10 @@ contract CryptoBunny is ERC721, ERC721Enumerable, Ownable {
     pendingWithdrawals[msg.sender] = 0;
     (bool success, ) = msg.sender.call{value: _amount}("");
     require(success, "Transfer failed.");
+  }
+
+  function setSaleStatus(Status status) external onlyOwner {
+    saleStatus = status;
   }
 
   function _baseURI() internal view virtual override returns (string memory) {
