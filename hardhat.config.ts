@@ -3,6 +3,7 @@ import "dotenv/config";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@openzeppelin/hardhat-upgrades";
+import "hardhat-spdx-license-identifier";
 import "@typechain/hardhat";
 import "hardhat-abi-exporter";
 import "hardhat-deploy";

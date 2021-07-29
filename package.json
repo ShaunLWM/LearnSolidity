@@ -46,6 +46,7 @@
     "hardhat-ethernal": "^0.3.8",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-preprocessor": "^0.1.4",
+    "hardhat-spdx-license-identifier": "^2.0.3",
     "hardhat-watcher": "^2.1.1",
     "prettier-plugin-solidity": "^1.0.0-beta.17",
     "solidity-coverage": "^0.7.16",
