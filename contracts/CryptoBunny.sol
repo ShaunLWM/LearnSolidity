@@ -103,6 +103,16 @@ contract CryptoBunny is ERC721, ERC721Enumerable, Ownable {
       "Bunny is already on sale"
     );
     require(_amount > 0, "Amount must be a positive value");
+    if (bunnyBids[_bunnyIndex].bidder != address(0)) {
+      if (_amount > bunnyBids[_bunnyIndex].price) {
+        uint256 prevPrice = bunnyBids[_bunnyIndex].price;
+        pendingWithdrawals[bunnyBids[_bunnyIndex].bidder] += prevPrice;
+        bunnyBids[_bunnyIndex] = Bid({bunnyIndex: _bunnyIndex, bidder: address(0), price: 0, valid: false});
+        emit BidOverride(_bunnyIndex, prevPrice, _amount);
+      } else {
+        revert("Price must be higher than highest bid");
+      }
+    }
 
     bunnyOffer[_bunnyIndex] = Offer({
       minPrice: _amount,
