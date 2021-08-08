@@ -1,9 +1,12 @@
+import { time } from "@openzeppelin/test-helpers";
 import { expect } from "chai";
+import { BigNumber } from "ethers";
 import hre, { ethers, getNamedAccounts } from "hardhat";
 import { CakeTogether } from "../typechain/CakeTogether";
 import { XCake } from "../typechain/XCake";
 import { setupTest } from "./setup";
 import { advanceNBlock } from "./TestUtils";
+import BN from "bn.js";
 
 const abi = [
   "function balanceOf(address owner) view returns (uint256)",
@@ -78,6 +81,8 @@ describe("CakeTogether contract", () => {
   });
 
   it("should allow owner to enter round", async () => {
+    console.time("Hello");
+    const currentBlock = await time.latest();
     const cakeToken = new ethers.Contract(CAKE_TOKEN, abi, await ethers.getSigner(owner));
     await cakeToken.approve(cakeTogether.address, ethers.utils.parseUnits("9999", "ether"));
     const currentRoundId = await cakeTogether.currentRoundId();
@@ -95,8 +100,12 @@ describe("CakeTogether contract", () => {
     expect(ticket).to.be.eq(9999);
 
     const totalMinted = await xCake.totalSupply();
-    expect(totalMinted).to.be.eq(9999);
-    await advanceNBlock(2400);
+    expect(totalMinted).to.be.eq(9999); 
+    console.log(`Old BLock ${await time.latest()}, ${await time.latestBlock()}`);
+    await time.increase(2629743 * 3);
+    await time.advanceBlock();
+    console.log(`New BLock ${await time.latest()}, ${await time.latestBlock()}`);
+    // await advanceNBlock(2400);
     const pendingRewards = await cakeTogether.getPendingRewards();
     console.log(`------- PENDING REWARDS: ${pendingRewards}`);
     const pendingRewards2 = await cakeTogether.getStaked();
@@ -105,6 +114,7 @@ describe("CakeTogether contract", () => {
     await tx.wait();
     const balance = await cakeToken.balanceOf(cakeTogether.address);
     console.log(`NEW BALKACE ${balance}`);
+    console.timeEnd("Hello");
   });
 
   it.skip("should allow non-owner to enter round", async () => {

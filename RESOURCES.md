@@ -19,3 +19,11 @@ https://github.com/alpaca-finance/bsc-alpaca-contract
 https://github.com/xludx/zbs-swap
 https://github.com/darkforest-eth/eth
 https://github.com/gnosis/dao-module
+https://github.com/sushiswap/sushiswap-settlement
+https://github.com/sushiswap/shoyu
+
+
+
+Staking
+https://github.com/xdaichain/easy-staking-contracts/blob/master/contracts/EasyStaking.sol
+https://github.com/benber86/alcom_contracts/blob/main/contracts/SingleStakeCompounder.sol
